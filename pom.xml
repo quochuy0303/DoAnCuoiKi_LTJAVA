@@ -95,6 +95,11 @@
 			<artifactId>font-awesome</artifactId>
 			<version>5.15.4</version>
 		</dependency>
+        <dependency>
+            <groupId>com.hutech</groupId>
+            <artifactId>VoTranQuocHuy430</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
 	<build>

@@ -31,5 +31,6 @@ public class CartController {
         cartService.clearCart();
         return "redirect:/cart";
     }
+
 }
 

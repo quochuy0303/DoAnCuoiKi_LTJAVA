@@ -7,22 +7,31 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 @SessionScope
 public class CartService {
 
     private List<CartItem> cartItems = new ArrayList<>();
-
+    Map<Long, CartItem> cartItemMap = new HashMap<>();
     @Autowired
     private ProductRepository productRepository;
 
     public void addToCart(Long productId, int quantity) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("Product not found: " + productId));
-        cartItems.add(new CartItem(product, quantity));
+
+        CartItem existingCartItem = cartItems.stream()
+                .filter(item -> item.getProduct().getId() == productId)
+                .findFirst()
+                .orElse(null);
+
+        if (existingCartItem != null) {
+            existingCartItem.setQuantity(existingCartItem.getQuantity() + quantity);
+        } else {
+            cartItems.add(new CartItem(product, quantity));
+        }
     }
 
     public List<CartItem> getCartItems() {
@@ -36,4 +45,7 @@ public class CartService {
     public void clearCart() {
         cartItems.clear();
     }
+
+
 }
+
