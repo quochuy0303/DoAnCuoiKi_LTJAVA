@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}" lang="">
+<head>
+    <title>Form Thêm Category</title>
+    <link th:fragment="link-css" rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <style>
+        body{
+            background-color: #dee9ff;
+        }
+        .invalid-feedback {
+            display: block;
+            color: #dc3545;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        .form-control:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+        }
+
+    </style>
+</head>
+<body>
+<section layout:fragment="content" class="container mt-5">
+    <h1 class="text-center mb-4">Form Category</h1>
+    <form th:action="@{/categories/add}" th:object="${category}" method="post" class="needs-validation" novalidate>
+        <div class="mb-3">
+            <label for="name" class="form-label">Category Name:</label>
+            <input type="text" id="name" th:field="*{name}" class="form-control" required/>
+            <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</section>
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/js/jquery-3.7.0.min.js}"></script>
+<script>
+    // Custom client-side validation handling
+    (function () {
+        'use strict';
+        var forms = document.querySelectorAll('.needs-validation');
+        Array.prototype.slice.call(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
+</script>
+</body>
+</html>
