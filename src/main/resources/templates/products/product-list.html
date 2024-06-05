@@ -8,7 +8,6 @@
     <link th:fragment="link-css" rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
     <link th:fragment="custom-css" rel="stylesheet" th:href="@{/css/style.css}">
     <link th:href="@{/css/all.min.css}" rel="stylesheet">
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 </head>
 <body>
 <section layout:fragment="content" class="container mt-5">
@@ -17,16 +16,7 @@
             <input type="text" id="searchInput" class="form-control me-2" style="width: 40%;" placeholder="Search...">
             <button type="submit" class="btn btn-primary">Search</button>
         </form>
-        <ul id="suggestionsList" class="list-group"></ul>
-        <div>
-            <a th:href="@{/products/sortAscending}" class="btn btn-link">
-                <i class="fas fa-sort-alpha-up"></i>
-            </a>
-            <a th:href="@{/products/sortDescending}" class="btn btn-link">
-                <i class="fas fa-sort-alpha-down"></i>
-            </a>
-        </div>
-        <div class="row">
+        <div class="row" id="productsContainer">
             <div th:each="product : ${products}" class="col-md-4 mb-4">
                 <div class="card">
                     <div class="content">
@@ -87,7 +77,67 @@
     <a th:href="@{/}" class="btn btn-link">Back to Home</a>
 </section>
 <script th:src="@{/js/bootstrap.min.js}"></script>
-<script th:src="@{/js/jquery- 3.7.0.min.js}"></script>
+<script th:src="@{/js/jquery-3.7.0.min.js}"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#searchForm').submit(function(e) {
+            e.preventDefault();
+            var keyword = $('#searchInput').val();
+            $.ajax({
+                url: '/products/search',
+                type: 'GET',
+                data: { keyword: keyword },
+                success: function(data) {
+                    updateProductList(data);
+                }
+            });
+        });
+
+        function updateProductList(products) {
+            var $container = $('#productsContainer');
+            $container.empty();
+            products.forEach(function(product) {
+                var productHtml = `
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            <div class="content">
+                                <div class="imgBx">
+                                    <img src="${product.image}" alt="Product Image" class="card-img-top">
+                                </div>
+                                <div class="contentBx">
+                                    <h3>${product.name}<br>
+                                        <span>${product.description}</span>
+                                    </h3>
+                                    <p class="card-text"><strong>Price:</strong> $${product.price}</p>
+                                </div>
+                            </div>
+                            <ul class="sci">
+                                <li>
+                                    <a>
+                                        <form action="/cart/add" method="post">
+                                            <div class="input-group mb-3">
+                                                <input type="number" name="quantity" min="1" value="1" class="form-control">
+                                                <input type="hidden" value="${product.id}" name="productId"/>
+                                                <button type="submit" class="button-85" role="button">Add to Cart</button>
+                                            </div>
+                                        </form>
+                                    </a>
+                                </li>
+                                <li>
+                                    <div sec:authorize="hasAuthority('ADMIN')">
+                                        <a href="/products/edit/${product.id}" class="btn btn-success btn-sm d-inline-block">Sửa</a>
+                                        <a href="/products/delete/${product.id}" class="btn btn-danger btn-sm d-inline-block" onclick="return confirm('Bạn có chắc không?')">Xóa</a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                $container.append(productHtml);
+            });
+        }
+    });
+</script>
 </body>
 </html>

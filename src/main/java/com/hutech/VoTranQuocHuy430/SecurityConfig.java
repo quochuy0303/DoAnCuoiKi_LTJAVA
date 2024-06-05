@@ -42,7 +42,8 @@ public class SecurityConfig {
                         .requestMatchers("/products/edit/**", "/products/add", "/products/delete"
                                 ,"/categories/edit/**", "/categories/add", "/categories/delete"
                         ,"/manufacturers/edit/**", "/manufacturers/add", "/manufacturers/delete"
-                        ,"/brands/edit/**", "/brands/add", "/brands/delete")
+                        ,"/brands/edit/**", "/brands/add", "/brands/delete",
+                        "/admin/**")
                         .hasAnyAuthority("ADMIN") // Chỉ cho phép ADMIN truy cập.
                         .requestMatchers("/api/**")
                         .permitAll() // API mở cho mọi người dùng.

@@ -6,8 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
-import java.util.List;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,7 +19,7 @@ public class Product {
     private String name;
     private double price;
     private String description;
-    private String image;
+    private String image; // This field will store the path to the uploaded image
 
     @ManyToOne
     @JoinColumn(name = "category_id")
@@ -33,6 +31,6 @@ public class Product {
 
     @ManyToOne
     @JoinColumn(name = "brand_id")
-    @JsonManagedReference // Chú thích này giúp quản lý JSON
+    @JsonManagedReference
     private Brand brand;
 }

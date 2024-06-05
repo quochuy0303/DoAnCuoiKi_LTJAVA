@@ -17,11 +17,13 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Transactional
 public class ProductService {
-    @Autowired
-    private ProductRepository productRepository;
+    private final ProductRepository productRepository;
 
     public Page<Product> getAllProductsPageable(Pageable pageable) {
         return productRepository.findAll(pageable); // Sử dụng phương thức có sẵn trong JPA repository
+    }
+    public List<Product> searchProducts(String keyword) {
+        return productRepository.searchByName(keyword);
     }
     // Retrieve all products from the database
     public List<Product> getAllProducts() {
@@ -53,5 +55,6 @@ public class ProductService {
         }
         productRepository.deleteById(id);
     }
+
 
 }
