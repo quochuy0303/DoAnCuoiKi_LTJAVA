@@ -1,5 +1,8 @@
 package com.hutech.VoTranQuocHuy430.controller;
 
+import com.hutech.VoTranQuocHuy430.model.Brand;
+import com.hutech.VoTranQuocHuy430.model.Category;
+import com.hutech.VoTranQuocHuy430.model.Manufacturer;
 import com.hutech.VoTranQuocHuy430.model.Product;
 import com.hutech.VoTranQuocHuy430.service.BrandService;
 import com.hutech.VoTranQuocHuy430.service.CategoryService;
@@ -15,21 +18,33 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 
 @Controller
 @RequestMapping("/products")
 public class ProductController {
+
     @Autowired
     private ProductService productService;
+
     @Autowired
     private CategoryService categoryService;
+
     @Autowired
     private ManufacturerService manufacturerService;
+
     @Autowired
     private BrandService brandService;
+
     @GetMapping
     public String showProductList(Model model, @RequestParam(defaultValue = "0") int page) {
-        int pageSize = 4; // Số lượng sản phẩm trên mỗi trang
+        int pageSize = 4;
         Pageable pageable = PageRequest.of(page, pageSize);
         Page<Product> productPage = productService.getAllProductsPageable(pageable);
         model.addAttribute("products", productPage.getContent());
@@ -37,6 +52,7 @@ public class ProductController {
         model.addAttribute("totalPages", productPage.getTotalPages());
         return "/products/product-list";
     }
+
     @GetMapping("/sortAscending")
     public String sortProductsAscending(Model model, @RequestParam(defaultValue = "0") int page) {
         int pageSize = 4;
@@ -48,6 +64,7 @@ public class ProductController {
         model.addAttribute("sort", "asc");
         return "/products/product-list";
     }
+
     @GetMapping("/sortDescending")
     public String sortProductsDescending(Model model, @RequestParam(defaultValue = "0") int page) {
         int pageSize = 4;
@@ -59,7 +76,7 @@ public class ProductController {
         model.addAttribute("sort", "desc");
         return "/products/product-list";
     }
-    // For adding a new product
+
     @GetMapping("/add")
     public String showAddForm(Model model) {
         model.addAttribute("product", new Product());
@@ -69,34 +86,63 @@ public class ProductController {
         return "/products/add-product";
     }
 
-    // Process the form for adding a new product
     @PostMapping("/add")
-    public String addProduct(@Valid Product product, BindingResult result) {
+    public String addProduct(@Valid @ModelAttribute("product") Product product, @RequestParam("image") MultipartFile file, BindingResult result, Model model) {
         if (result.hasErrors()) {
+            model.addAttribute("categories", categoryService.getAllCategories());
+            model.addAttribute("manufacturers", manufacturerService.getAllManufacturers());
+            model.addAttribute("brands", brandService.getAllBrands());
             return "/products/add-product";
+        }
+        // Xử lý tải ảnh
+        try {
+            byte[] bytes = file.getBytes();
+            String fileName = file.getOriginalFilename();
+            Path path = Paths.get("upload-dir/" + fileName);
+            Files.write(path, bytes);
+            product.setImage(path.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         productService.addProduct(product);
         return "redirect:/products";
     }
+
     // For editing a product
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
         Product product = productService.getProductById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid product Id:" + id));
+        if (product.getCategory() == null) {
+            product.setCategory(new Category());
+        }
+        if (product.getManufacturer() == null) {
+            product.setManufacturer(new Manufacturer());
+        }
+        if (product.getBrand() == null) {
+            product.setBrand(new Brand());
+        }
         model.addAttribute("product", product);
         model.addAttribute("categories", categoryService.getAllCategories());
+        model.addAttribute("manufacturers", manufacturerService.getAllManufacturers());
+        model.addAttribute("brands", brandService.getAllBrands());
         return "/products/update-product";
     }
-    // Process the form for updating a product
+
+
     @PostMapping("/update/{id}")
-    public String updateProduct(@PathVariable Long id, @Valid Product product, BindingResult result) {
+    public String updateProduct(@PathVariable Long id, @Valid @ModelAttribute("product") Product product, BindingResult result, Model model) {
         if (result.hasErrors()) {
-            product.setId(id);return "/products/update-product";
+            product.setId(id);
+            model.addAttribute("categories", categoryService.getAllCategories());
+            model.addAttribute("manufacturers", manufacturerService.getAllManufacturers());
+            model.addAttribute("brands", brandService.getAllBrands());
+            return "/products/update-product";
         }
         productService.updateProduct(product);
         return "redirect:/products";
     }
-    // Handle request to delete a product
+
     @GetMapping("/delete/{id}")
     public String deleteProduct(@PathVariable Long id) {
         productService.deleteProductById(id);

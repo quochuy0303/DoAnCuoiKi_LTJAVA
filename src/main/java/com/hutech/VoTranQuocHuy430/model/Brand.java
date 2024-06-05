@@ -24,4 +24,13 @@ public class Brand {
     @OneToMany(mappedBy = "brand")
     @JsonManagedReference // Chú thích này giúp quản lý JSON
     private List<Manufacturer> manufacturers;
+
+    @Override
+    public String toString() {
+        return "Brand{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                '}';
+    }
 }

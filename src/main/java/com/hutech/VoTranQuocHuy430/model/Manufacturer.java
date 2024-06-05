@@ -23,10 +23,19 @@ public class Manufacturer {
 
     @ManyToOne
     @JoinColumn(name = "brand_id")
-    @JsonBackReference // Chú thích này giúp tránh vòng lặp JSON
+    @JsonBackReference // This annotation helps to avoid JSON recursion
     private Brand brand;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
+    @Override
+    public String toString() {
+        return "Manufacturer{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", brand=" + brand.getName() +  // Avoid recursion in toString
+                '}';
+    }
 }

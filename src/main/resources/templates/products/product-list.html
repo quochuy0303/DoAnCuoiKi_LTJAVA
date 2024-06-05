@@ -8,7 +8,7 @@
     <link th:fragment="link-css" rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
     <link th:fragment="custom-css" rel="stylesheet" th:href="@{/css/style.css}">
     <link th:href="@{/css/all.min.css}" rel="stylesheet">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 </head>
 <body>
 <section layout:fragment="content" class="container mt-5">
@@ -87,62 +87,7 @@
     <a th:href="@{/}" class="btn btn-link">Back to Home</a>
 </section>
 <script th:src="@{/js/bootstrap.min.js}"></script>
-<script th:src="@{/js/jquery-3.7.0.min.js}"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const searchForm = document.getElementById('searchForm');
-        const searchInput = document.getElementById('searchInput');
-        const productList = document.getElementById('productList');
-        const productCards = productList.getElementsByClassName('product-card');
-        const suggestionsList = document.getElementById('suggestionsList');
-
-        searchForm.addEventListener('submit', function (event) {
-            event.preventDefault();
-            const query = searchInput.value.toLowerCase();
-            filterProducts(query);
-        });
-
-        searchInput.addEventListener('input', function () {
-            const query = searchInput.value.toLowerCase();
-            updateSuggestions(query);
-        });
-
-        function filterProducts(query) {
-            Array.from(productCards).forEach(function (card) {
-                const productName = card.querySelector('.card-title').textContent.toLowerCase();
-                const productDescription = card.querySelector('.card-text').textContent.toLowerCase();
-
-                if (productName.includes(query) || productDescription.includes(query)) {
-                    card.parentElement.style.display = 'block';
-                } else {
-                    card.parentElement.style.display = 'none';
-                }
-            });
-        }
-
-        function updateSuggestions(query) {
-            suggestionsList.innerHTML = '';
-            if (query === '') {
-                return;
-            }
-
-            Array.from(productCards).forEach(function (card) {
-                const productName = card.querySelector('.card-title').textContent.toLowerCase();
-
-                if (productName.includes(query)) {
-                    const suggestionItem = document.createElement('li');
-                    suggestionItem.className = 'list-group-item list-group-item-action';
-                    suggestionItem.textContent = card.querySelector('.card-title').textContent;
-                    suggestionItem.addEventListener('click', function () {
-                        searchInput.value = suggestionItem.textContent;
-                        filterProducts(suggestionItem.textContent.toLowerCase());
-                        suggestionsList.innerHTML = '';
-                    });
-                    suggestionsList.appendChild(suggestionItem);
-                }
-            });
-        }
-    });
-</script>
+<script th:src="@{/js/jquery- 3.7.0.min.js}"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </body>
 </html>
