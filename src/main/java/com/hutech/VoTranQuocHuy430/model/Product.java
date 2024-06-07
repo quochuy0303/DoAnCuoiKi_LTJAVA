@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -19,6 +20,8 @@ public class Product {
     private String name;
     private double price;
     private String description;
+
+    @Column(name = "image")
     private String image; // This field will store the path to the uploaded image
 
     @ManyToOne
@@ -33,4 +36,7 @@ public class Product {
     @JoinColumn(name = "brand_id")
     @JsonManagedReference
     private Brand brand;
+
+    @OneToMany(mappedBy = "product")
+    private List<OrderDetail> orderDetails;
 }

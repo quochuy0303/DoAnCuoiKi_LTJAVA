@@ -17,6 +17,8 @@
         <tr>
             <th>Product Name</th>
             <th>Quantity</th>
+            <th>Price</th>
+            <th>Total</th>
             <th>Action</th>
         </tr>
         </thead>
@@ -24,6 +26,8 @@
         <tr th:each="item : ${cartItems}">
             <td th:text="${item.product.name}"></td>
             <td th:text="${item.quantity}"></td>
+            <td th:text="${item.product.price}"></td>
+            <td th:text="${item.product.price * item.quantity}"></td>
             <td>
                 <a th:href="@{/cart/remove/{productId}(productId=${item.product.id})}" class="btn btn-danger btn-sm">Remove</a>
             </td>
@@ -37,40 +41,6 @@
     </div>
 </section>
 <script th:src="@{/js/bootstrap.min.js}"></script>
-<script th:src="@{/js/jquery- 3.7.0.min.js}"></script>
-<script>
-    // Assuming you have a function `fetchCartData()` that retrieves the cart data from the server
-
-    function addToCart(productId, quantity) {
-        // ... (Your existing addToCart logic from CartService)
-
-        // After successfully adding to the cart
-        fetchCartData().then(cartData => {
-            updateCartDisplay(cartData);
-        });
-    }
-
-    function updateCartDisplay(cartData) {
-        const cartList = document.getElementById('cart-list');
-        cartList.innerHTML = ''; // Clear existing cart items
-
-        cartData.forEach(cartItem => {
-            const cartItemElement = createCartItemElement(cartItem);
-            cartList.appendChild(cartItemElement);
-        });
-
-        // Update total cart quantity and price display (if applicable)
-    }
-
-    function createCartItemElement(cartItem) {
-        const cartItemElement = document.createElement('li');
-        cartItemElement.innerHTML = `
-        <span class="product-name">${cartItem.product.name}</span>
-        <span class="product-quantity">${cartItem.quantity}</span>
-        <span class="product-price">${cartItem.product.price}</span>
-    `;
-        return cartItemElement;
-    }
-</script>
+<script th:src="@{/js/jquery-3.7.0.min.js}"></script>
 </body>
 </html>

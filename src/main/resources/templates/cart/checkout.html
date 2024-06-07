@@ -6,11 +6,11 @@
     <title th:text="${title} ?: 'Your Cart'">Place Order</title>
     <link th:fragment="link-css" rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
     <link th:fragment="custom-css" rel="stylesheet" th:href="@{/css/style.css}">
+    <link th:fragment="view-css" rel="stylesheet" th:href="@{/css/view.css}">
 </head>
 <body>
 <section layout:fragment="content" class="container mt-3">
-    <h1 style="text-align: center">Place Your Order</h1>
-    <form th:action="@{/order/submit}" method="post">
+    <form th:action="@{/api/payment/create-payment}" method="post">
         <div class="mb-3">
             <label for="customerName" class="form-label">Your Name:</label>
             <input type="text" id="customerName" name="customerName" class="form-control" required>
@@ -34,13 +34,13 @@
         <div class="mb-3">
             <label for="paymentMethod" class="form-label">Payment Method:</label>
             <select id="paymentMethod" name="paymentMethod" class="form-select">
-                <option value="cash">Cash</option>
-                <option value="credit_card">Credit Card</option>
-                <option value="paypal">PayPal</option>
+                <option value="cash">COD</option>
+                <option value="vnpay">VNPAY</option>
             </select>
         </div>
         <button type="submit" class="btn btn-primary">Submit Order</button>
     </form>
+
 </section>
 <script th:src="@{/js/bootstrap.min.js}"></script>
 <script th:src="@{/js/jquery- 3.7.0.min.js}"></script>

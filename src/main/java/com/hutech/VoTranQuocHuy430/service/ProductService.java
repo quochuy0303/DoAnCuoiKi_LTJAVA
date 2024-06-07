@@ -17,7 +17,12 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Transactional
 public class ProductService {
-    private final ProductRepository productRepository;
+    @Autowired
+    private ProductRepository productRepository;
+
+    public List<Product> getTop3Products() {
+        return productRepository.findTop3ByOrderByOrderDetailsDesc();
+    }
 
     public Page<Product> getAllProductsPageable(Pageable pageable) {
         return productRepository.findAll(pageable); // Sử dụng phương thức có sẵn trong JPA repository

@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout}">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title th:text="${title} ?: 'Your Cart'">Order Confirmation</title>
-    <link th:fragment="link-css" rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
-    <link th:fragment="custom-css" rel="stylesheet" th:href="@{/css/style.css}">
+    <title>Order Confirmation</title>
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
 </head>
 <body>
-<section layout:fragment="content" class="container mt-3">
+<section class="container mt-5">
     <h1>Order Confirmation</h1>
-    <p th:text="${message}"></p>
+    <p>Status: <span th:text="${status}">Transaction Status</span></p>
+    <p>Transaction ID: <span th:text="${transactionId}">Transaction ID</span></p>
+    <p>Amount: <span th:text="${amount}">Amount</span></p>
+    <p th:text="${message}">Your order has been successfully placed. Thank you for your purchase!</p>
 </section>
 <script th:src="@{/js/bootstrap.min.js}"></script>
-<script th:src="@{/js/jquery- 3.7.0.min.js}"></script>
+<script th:src="@{/js/jquery-3.7.0.min.js}"></script>
 </body>
 </html>

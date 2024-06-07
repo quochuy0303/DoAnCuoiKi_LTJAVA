@@ -12,29 +12,36 @@ import java.util.*;
 
 public class Config {
     public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    public static String vnp_ReturnUrl = "http://localhost:8080/vnpay_jsp/vnpay_return.jsp";
+    public static String vnp_ReturnUrl = "http://localhost:8080/order/vnpay_return"; // Cập nhật đường dẫn này
     public static String vnp_TmnCode = "A61ND85G";
     public static String secretKey = "RKEKRPI981GA8B1FRBU5AXFL2G851W80";
     public static String vnp_ApiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
     public static String vnp_Version = "2.1.0";
     public static String vnp_Command = "pay";
-//    public static String md5(String message) {
-//        String digest = null;
-//        try {
-//            MessageDigest md = MessageDigest.getInstance("MD5");
-//            byte[] hash = md.digest(message.getBytes("UTF-8"));
-//            StringBuilder sb = new StringBuilder(2 * hash.length);
-//            for (byte b : hash) {
-//                sb.append(String.format("%02x", b & 0xff));
-//            }
-//            digest = sb.toString();
-//        } catch (UnsupportedEncodingException ex) {
-//            digest = "";
-//        } catch (NoSuchAlgorithmException ex) {
-//            digest = "";
-//        }
-//        return digest;
-//    }
+
+    public static String getVnp_PayUrl() {
+        return vnp_PayUrl;
+    }
+
+    public static String getVnp_ReturnUrl() {
+        return vnp_ReturnUrl;
+    }
+
+    public static String getVnp_TmnCode() {
+        return vnp_TmnCode;
+    }
+
+    public static String getSecretKey() {
+        return secretKey;
+    }
+
+    public static String getVnp_Version() {
+        return vnp_Version;
+    }
+
+    public static String getVnp_Command() {
+        return vnp_Command;
+    }
 
     public static String Sha256(String message) {
         String digest = null;

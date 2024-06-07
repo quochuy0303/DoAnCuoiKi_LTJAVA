@@ -13,4 +13,6 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p FROM Product p WHERE p.name LIKE %?1%")
     List<Product> searchByName(String name);
+    @Query("SELECT p FROM Product p JOIN p.orderDetails od GROUP BY p ORDER BY COUNT(od) DESC")
+    List<Product> findTop3ByOrderByOrderDetailsDesc();
 }

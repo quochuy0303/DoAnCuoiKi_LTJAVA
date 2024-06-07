@@ -42,6 +42,9 @@ public class Order {
 
     private String paymentMethod;
 
+    private double totalAmount;
+    private String status;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderDetail> orderDetails;
 }

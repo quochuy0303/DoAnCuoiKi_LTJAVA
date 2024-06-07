@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security5"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}" lang="en">
+<head>
+    <title>Product Details</title>
+    <link th:fragment="link-css" rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link th:fragment="custom-css" rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<section layout:fragment="content" class="container mt-5">
+    <div class="row gx-5">
+        <aside class="col-lg-6">
+            <div class="border rounded-4 mb-3 d-flex justify-content-center">
+                <img th:src="@{${product.image}}" style="max-width: 100%; max-height: 100vh; margin: auto;" class="rounded-4 fit" />
+            </div>
+        </aside>
+        <main class="col-lg-6">
+            <div class="ps-lg-3">
+                <h4 class="title text-dark" th:text="${product.name}">Product Name</h4>
+                <div class="d-flex flex-row my-3">
+                    <span class="text-muted"><i class="fas fa-shopping-basket fa-sm mx-1"></i>154 orders</span>
+                    <span class="text-success ms-2">In stock</span>
+                </div>
+                <div class="mb-3">
+                    <span class="h5" th:text="'$' + ${product.price}">$75.00</span>
+                    <span class="text-muted">/per box</span>
+                </div>
+                <p th:text="${product.description}">
+                    Product description goes here...
+                </p>
+                <div class="row">
+                    <dt class="col-3">Category:</dt>
+                    <dd class="col-9" th:text="${product.category.name}">Category Name</dd>
+                    <dt class="col-3">Manufacturer:</dt>
+                    <dd class="col-9" th:text="${product.manufacturer.name}">Manufacturer Name</dd>
+                    <dt class="col-3">Brand:</dt>
+                    <dd class="col-9" th:text="${product.brand.name}">Brand Name</dd>
+                </div>
+                <hr />
+                <form th:action="@{/products/add-to-cart}" method="post" class="d-inline-block">
+                    <input type="hidden" name="productId" th:value="${product.id}">
+                    <input type="hidden" name="quantity" value="1">
+                    <button type="submit" class="btn btn-primary shadow-0"> <i class="me-1 fa fa-shopping-basket"></i> Add to cart </button>
+                </form>
+                <form th:action="@{/products/buy-now}" method="post" class="d-inline-block">
+                    <input type="hidden" name="productId" th:value="${product.id}">
+                    <input type="hidden" name="quantity" value="1">
+                    <button type="submit" class="btn btn-warning shadow-0">Buy now</button>
+                </form>
+                <button class="btn btn-light border border-secondary py-2 icon-hover px-3" id="saveButton"> <i class="me-1 fa fa-heart fa-lg" id="heartIcon"></i> Save </button>
+            </div>
+        </main>
+    </div>
+</section>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/js/jquery- 3.7.0.min.js}"></script>
+<script>
+    $(document).ready(function() {
+        $('#saveButton').click(function() {
+            $('#heartIcon').toggleClass('text-danger');
+        });
+    });
+</script>
+</body>
+</html>
