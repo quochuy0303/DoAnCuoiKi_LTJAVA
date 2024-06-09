@@ -7,13 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequestMapping("/brands")
+@RequestMapping("/admin/brands")
 public class BrandController {
 
     @Autowired
@@ -23,24 +20,24 @@ public class BrandController {
     @GetMapping
     public String showBrandList(Model model) {
         model.addAttribute("brands", brandService.getAllBrands());
-        return "/brands/brand-list";
+        return "admin/brand/brand-list";
     }
 
     // Hiển thị form thêm thương hiệu
     @GetMapping("/add")
     public String showAddBrandForm(Model model) {
         model.addAttribute("brand", new Brand());
-        return "/brands/add-brand";
+        return "admin/brand/add-brand";
     }
 
     // Xử lý thêm thương hiệu
     @PostMapping("/add")
-    public String addBrand(@Valid Brand brand, BindingResult result) {
+    public String addBrand(@Valid @ModelAttribute("brand") Brand brand, BindingResult result, Model model) {
         if (result.hasErrors()) {
-            return "/brands/add-brand";
+            return "admin/brand/add-brand";
         }
         brandService.addBrand(brand);
-        return "redirect:/brands";
+        return "redirect:/admin/brands";
     }
 
     // Hiển thị form sửa thương hiệu
@@ -49,24 +46,24 @@ public class BrandController {
         Brand brand = brandService.getBrandById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid brand Id:" + id));
         model.addAttribute("brand", brand);
-        return "/brands/update-brand";
+        return "admin/brand/update-brand";
     }
 
     // Xử lý cập nhật thương hiệu
     @PostMapping("/update/{id}")
-    public String updateBrand(@PathVariable Long id, @Valid Brand brand, BindingResult result) {
+    public String updateBrand(@PathVariable Long id, @Valid @ModelAttribute("brand") Brand brand, BindingResult result, Model model) {
         if (result.hasErrors()) {
             brand.setId(id);
-            return "/brands/update-brand";
+            return "admin/brand/update-brand";
         }
         brandService.updateBrand(brand);
-        return "redirect:/brands";
+        return "redirect:/admin/brands";
     }
 
     // Xử lý xóa thương hiệu
     @GetMapping("/delete/{id}")
     public String deleteBrand(@PathVariable Long id) {
         brandService.deleteBrandById(id);
-        return "redirect:/brands";
+        return "redirect:/admin/brands";
     }
 }

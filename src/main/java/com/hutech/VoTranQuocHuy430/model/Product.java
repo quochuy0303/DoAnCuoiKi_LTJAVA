@@ -1,10 +1,11 @@
 package com.hutech.VoTranQuocHuy430.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import java.util.List;
 
 @Data
@@ -17,12 +18,18 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @NotEmpty(message = "Name cannot be empty")
     private String name;
+
+    @NotNull(message = "Price cannot be null")
+    @Positive(message = "Price must be positive")
     private double price;
+
+    @NotEmpty(message = "Description cannot be empty")
     private String description;
 
     @Column(name = "image")
-    private String image; // This field will store the path to the uploaded image
+    private String image; //
 
     @ManyToOne
     @JoinColumn(name = "category_id")
@@ -34,7 +41,6 @@ public class Product {
 
     @ManyToOne
     @JoinColumn(name = "brand_id")
-    @JsonManagedReference
     private Brand brand;
 
     @OneToMany(mappedBy = "product")

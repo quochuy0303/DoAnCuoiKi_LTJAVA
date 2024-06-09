@@ -42,9 +42,11 @@ public class Order {
 
     private String paymentMethod;
 
-    private double totalAmount;
-    private String status;
+    private String transactionId;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderDetail> orderDetails;
+
+    private double totalAmount;
+    private String status;
 }

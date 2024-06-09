@@ -51,6 +51,7 @@ public class ProductService {
         existingProduct.setPrice(product.getPrice());
         existingProduct.setDescription(product.getDescription());
         existingProduct.setCategory(product.getCategory());
+        existingProduct.setImage(product.getImage()); // Ensure this line exists to update the image URL
         return productRepository.save(existingProduct);
     }
     // Delete a product by its id
@@ -60,6 +61,4 @@ public class ProductService {
         }
         productRepository.deleteById(id);
     }
-
-
 }

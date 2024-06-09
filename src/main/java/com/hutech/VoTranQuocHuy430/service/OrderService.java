@@ -26,14 +26,12 @@ import java.util.*;
 @Transactional
 public class OrderService {
 
-    @Autowired
-    private  OrderRepository orderRepository;
 
     @Autowired
-    private  OrderDetailRepository orderDetailRepository;
-
-    @Autowired
-    private  CartService cartService;
+    private OrderRepository orderRepository;
+    private final OrderDetailRepository orderDetailRepository;
+    private final CartService cartService;
+    private final Config config; // Thêm Config vào đây
 
     public double calculateTotalAmount(List<CartItem> cartItems) {
         return cartItems.stream().mapToDouble(item -> item.getProduct().getPrice() * item.getQuantity()).sum();
@@ -56,6 +54,7 @@ public class OrderService {
             OrderDetail detail = new OrderDetail();
             detail.setOrder(order);
             detail.setProduct(item.getProduct());
+            detail.setProductName(item.getProduct().getName()); // Set product name
             detail.setQuantity(item.getQuantity());
             detail.setUnitPrice(item.getProduct().getPrice()); // Set unit price
             orderDetailRepository.save(detail);
@@ -67,14 +66,16 @@ public class OrderService {
         return order;
     }
 
+
     public Optional<Order> findById(Long id) {
         return orderRepository.findById(id);
     }
-
+    public List<Order> getAllOrders() {
+        return orderRepository.findAll();
+    }
     public void save(Order order) {
         orderRepository.save(order);
     }
-
 
     public ResponseEntity<PaymentResDTO> initiateVnpayPayment(HttpServletRequest req, Order order) throws UnsupportedEncodingException {
         double totalAmount = order.getTotalAmount() * 100; // VNPay yêu cầu số tiền phải nhân với 100
@@ -83,16 +84,16 @@ public class OrderService {
         String vnp_IpAddr = Config.getIpAddress(req);
 
         Map<String, String> vnp_Params = new HashMap<>();
-        vnp_Params.put("vnp_Version", Config.getVnp_Version());
-        vnp_Params.put("vnp_Command", Config.getVnp_Command());
-        vnp_Params.put("vnp_TmnCode", Config.getVnp_TmnCode());
+        vnp_Params.put("vnp_Version", "2.1.0");
+        vnp_Params.put("vnp_Command", "pay");
+        vnp_Params.put("vnp_TmnCode", config.getVnp_TmnCode());
         vnp_Params.put("vnp_Amount", String.valueOf((long) totalAmount));
         vnp_Params.put("vnp_CurrCode", "VND");
         vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
         vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang " + order.getId());
         vnp_Params.put("vnp_OrderType", "other");
         vnp_Params.put("vnp_Locale", "vn");
-        vnp_Params.put("vnp_ReturnUrl", Config.getVnp_ReturnUrl());
+        vnp_Params.put("vnp_ReturnUrl", config.getVnp_ReturnUrl());
         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
 
         // Add vnp_CreateDate and vnp_ExpireDate
@@ -125,9 +126,9 @@ public class OrderService {
             }
         }
         String queryUrl = query.toString();
-        String vnp_SecureHash = Config.hmacSHA512(Config.secretKey, hashData.toString());
+        String vnp_SecureHash = Config.hmacSHA512(config.getVnp_HashSecret(), hashData.toString());
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
-        String paymentUrl = Config.vnp_PayUrl + "?" + queryUrl;
+        String paymentUrl = config.getVnp_PayUrl() + "?" + queryUrl;
 
         PaymentResDTO paymentResDTO = new PaymentResDTO();
         paymentResDTO.setStatus("ok");

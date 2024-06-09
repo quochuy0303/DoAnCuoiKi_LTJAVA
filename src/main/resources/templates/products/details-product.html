@@ -7,13 +7,22 @@
     <title>Product Details</title>
     <link th:fragment="link-css" rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
     <link th:fragment="custom-css" rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .product-image {
+            width: 500px; /* Đặt chiều rộng cố định */
+            height: 500px; /* Đặt chiều cao cố định */
+            object-fit: cover; /* Đảm bảo hình ảnh không bị méo */
+            display: block;
+            margin: auto; /* Căn giữa hình ảnh */
+        }
+    </style>
 </head>
 <body>
 <section layout:fragment="content" class="container mt-5">
     <div class="row gx-5">
         <aside class="col-lg-6">
             <div class="border rounded-4 mb-3 d-flex justify-content-center">
-                <img th:src="@{${product.image}}" style="max-width: 100%; max-height: 100vh; margin: auto;" class="rounded-4 fit" />
+                <img th:src="@{${product.image}}" alt="Product Image" class="rounded-4 product-image" />
             </div>
         </aside>
         <main class="col-lg-6">
@@ -55,7 +64,7 @@
     </div>
 </section>
 <script th:src="@{/js/bootstrap.min.js}"></script>
-<script th:src="@{/js/jquery- 3.7.0.min.js}"></script>
+<script th:src="@{/js/jquery-3.7.0.min.js}"></script>
 <script>
     $(document).ready(function() {
         $('#saveButton').click(function() {

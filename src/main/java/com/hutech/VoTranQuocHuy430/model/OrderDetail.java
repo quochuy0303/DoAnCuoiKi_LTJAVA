@@ -23,6 +23,16 @@ public class OrderDetail {
     @JoinColumn(name = "product_id")
     private Product product;
 
+    private String productName;
     private int quantity;
     private double unitPrice;
+
+    // Ensure productName is set when creating an order detail
+    @PrePersist
+    @PreUpdate
+    private void setProductName() {
+        if (product != null) {
+            this.productName = product.getName();
+        }
+    }
 }

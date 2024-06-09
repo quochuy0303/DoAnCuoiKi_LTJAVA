@@ -43,10 +43,22 @@ public class PaymentController {
         List<CartItem> cartItems = cartService.getCartItems();
         Order order = orderService.createOrder(customerName, customerAddress, phoneNumber, email, notes, paymentMethod, cartItems);
 
-        ResponseEntity<PaymentResDTO> paymentResponse = orderService.initiateVnpayPayment(req, order);
+        if ("vnpay".equalsIgnoreCase(paymentMethod)) {
+            ResponseEntity<PaymentResDTO> paymentResponse = orderService.initiateVnpayPayment(req, order);
+            return "redirect:" + paymentResponse.getBody().getURL();
+        }
 
-        return "redirect:" + paymentResponse.getBody().getURL();
+        model.addAttribute("message", "Your order has been successfully placed.");
+        model.addAttribute("order", order);
+        model.addAttribute("orderDetails", order.getOrderDetails());
+        model.addAttribute("customerName", order.getCustomerName());
+        model.addAttribute("customerAddress", order.getCustomerAddress());
+        model.addAttribute("phoneNumber", order.getPhoneNumber());
+        model.addAttribute("email", order.getEmail());
+
+        return "cart/order-confirmation";
     }
+
 
     @GetMapping("/vnpay_return")
     public String vnPayReturn(HttpServletRequest req, Model model) {
@@ -73,11 +85,20 @@ public class PaymentController {
             model.addAttribute("transactionId", vnp_Params.get("vnp_TransactionNo"));
             model.addAttribute("amount", vnp_Params.get("vnp_Amount"));
             model.addAttribute("message", "Your order has been successfully placed. Thank you for your purchase!");
+
+            // Add order details to the model
+            model.addAttribute("order", order);
+            model.addAttribute("orderDetails", order.getOrderDetails());
+            model.addAttribute("customerName", order.getCustomerName());
+            model.addAttribute("customerAddress", order.getCustomerAddress());
+            model.addAttribute("phoneNumber", order.getPhoneNumber());
+            model.addAttribute("email", order.getEmail());
         } else {
             model.addAttribute("status", "Failed");
             model.addAttribute("message", "Payment verification failed.");
         }
 
-        return "cart/order-confirmation";
+        return "cart/confirmVnPay";
     }
+
 }

@@ -16,7 +16,8 @@ public class CartController {
     @GetMapping
     public String showCart(Model model) {
         model.addAttribute("cartItems", cartService.getCartItems());
-        return "/cart/cart";
+        model.addAttribute("totalAmount", cartService.getTotalPrice());  // Truyền tổng số tiền vào model
+        return "cart/cart";
     }
 
     @PostMapping("/add")
@@ -40,6 +41,7 @@ public class CartController {
     @GetMapping("/checkout")
     public String checkout(Model model) {
         model.addAttribute("cartItems", cartService.getCartItems());
-        return "/cart/checkout";
+        model.addAttribute("totalAmount", cartService.getTotalPrice());  // Truyền tổng số tiền vào model
+        return "cart/checkout";
     }
 }

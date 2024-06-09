@@ -4,6 +4,7 @@ import com.hutech.VoTranQuocHuy430.Role;
 import com.hutech.VoTranQuocHuy430.model.User;
 import com.hutech.VoTranQuocHuy430.repository.IRoleRepository;
 import com.hutech.VoTranQuocHuy430.repository.IUserRepository;
+import com.hutech.VoTranQuocHuy430.repository.UserRepository;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 import java.util.Optional;
 @Service
 @Slf4j
@@ -23,6 +26,10 @@ public class UserService implements UserDetailsService {
     private IUserRepository userRepository;
     @Autowired
     private IRoleRepository roleRepository;
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
     // Lưu người dùng mới vào cơ sở dữ liệu sau khi mã hóa mật khẩu.
     public void save(@NotNull User user) {
         user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));

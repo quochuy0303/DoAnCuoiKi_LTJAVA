@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}" lang="en">
+<head>
+    <title th:text="${title} ?: 'Categories List'">Categories List</title>
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+</head>
+<body>
+<section layout:fragment="content" class="container mt-5">
+    <h1 style="text-align: center">Categories List</h1>
+    <a th:href="@{/admin/categories/add}" class="btn btn-primary mb-3">Add New Category</a>
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="category : ${categories}">
+            <td th:text="${category.id}"></td>
+            <td th:text="${category.name}"></td>
+            <td>
+                    <a th:href="@{/admin/categories/edit/{id}(id=${category.id})}" class="btn btn-success btn-sm">Edit</a>
+                    <a th:href="@{/admin/categories/delete/{id}(id=${category.id})}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <a th:href="@{/}" class="btn btn-link">Back to Home</a>
+</section>
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/js/jquery- 3.7.0.min.js}"></script>
+</body>
+</html>

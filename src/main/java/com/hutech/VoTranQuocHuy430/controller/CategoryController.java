@@ -3,70 +3,67 @@ package com.hutech.VoTranQuocHuy430.controller;
 import com.hutech.VoTranQuocHuy430.model.Category;
 import com.hutech.VoTranQuocHuy430.service.CategoryService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @Controller
-@RequiredArgsConstructor
+@RequestMapping("/admin/categories")
 public class CategoryController {
+
     @Autowired
-    private final CategoryService categoryService;
-    @GetMapping("/categories/add")
-    public String showAddForm(Model model) {
-        model.addAttribute("category", new Category());
-        return "/categories/add-category";
+    private CategoryService categoryService;
+
+    // Hiển thị danh sách category
+    @GetMapping
+    public String showCategoryList(Model model) {
+        model.addAttribute("categories", categoryService.getAllCategories());
+        return "admin/category/categories-list";
     }
-    @PostMapping("/categories/add")
-    public String addCategory(@Valid Category category, BindingResult result) {
+
+    // Hiển thị form thêm category
+    @GetMapping("/add")
+    public String showAddCategoryForm(Model model) {
+        model.addAttribute("category", new Category());
+        return "admin/category/add-category";
+    }
+
+    // Xử lý thêm category
+    @PostMapping("/add")
+    public String addCategory(@Valid @ModelAttribute("category") Category category, BindingResult result, Model model) {
         if (result.hasErrors()) {
-            return "/categories/add-category";
+            return "admin/category/add-category";
         }
         categoryService.addCategory(category);
-        return "redirect:/categories";
+        return "redirect:/admin/categories";
     }
-    // Hiển thị danh sách danh mục
-    @GetMapping("/categories")
-    public String listCategories(Model model) {
-        List<Category> categories = categoryService.getAllCategories();
-        model.addAttribute("categories", categories);
-        return "/categories/categories-list";
 
-    }
-    @GetMapping("/categories/edit/{id}")
-    public String showUpdateForm(@PathVariable("id") Long id, Model model) {
+    // Hiển thị form sửa category
+    @GetMapping("/edit/{id}")
+    public String showEditCategoryForm(@PathVariable Long id, Model model) {
         Category category = categoryService.getCategoryById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid category Id:"
-                        + id));
+                .orElseThrow(() -> new IllegalArgumentException("Invalid category Id:" + id));
         model.addAttribute("category", category);
-        return "/categories/update-category";
+        return "admin/category/update-category";
     }
-    // POST request to update category
-    @PostMapping("/categories/update/{id}")
-    public String updateCategory(@PathVariable("id") Long id, @Valid Category category,
-                                 BindingResult result, Model model) {
+
+    // Xử lý cập nhật category
+    @PostMapping("/update/{id}")
+    public String updateCategory(@PathVariable Long id, @Valid @ModelAttribute("category") Category category, BindingResult result, Model model) {
         if (result.hasErrors()) {
             category.setId(id);
-            return "/categories/update-category";
+            return "admin/category/update-category";
         }
         categoryService.updateCategory(category);
-        model.addAttribute("categories", categoryService.getAllCategories());
-        return "redirect:/categories";
-    }
-    // GET request for deleting category
-    @GetMapping("/categories/delete/{id}")
-    public String deleteCategory(@PathVariable("id") Long id, Model model) {
-        Category category = categoryService.getCategoryById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid category Id:"
-                        + id));
-        categoryService.deleteCategoryById(id);
-        model.addAttribute("categories", categoryService.getAllCategories());
-        return "redirect:/categories";
+        return "redirect:/admin/categories";
     }
 
+    // Xử lý xóa category
+    @GetMapping("/delete/{id}")
+    public String deleteCategory(@PathVariable Long id) {
+        categoryService.deleteCategoryById(id);
+        return "redirect:/admin/categories";
+    }
 }
