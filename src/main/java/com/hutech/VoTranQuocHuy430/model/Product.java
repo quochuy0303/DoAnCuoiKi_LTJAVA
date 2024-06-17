@@ -16,7 +16,7 @@ import java.util.List;
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @NotEmpty(message = "Name cannot be empty")
     private String name;
@@ -29,7 +29,7 @@ public class Product {
     private String description;
 
     @Column(name = "image")
-    private String image; //
+    private String image;
 
     @ManyToOne
     @JoinColumn(name = "category_id")

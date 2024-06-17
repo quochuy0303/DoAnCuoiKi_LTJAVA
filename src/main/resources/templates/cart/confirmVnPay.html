@@ -1,43 +1,124 @@
-<!-- src/main/resources/templates/cart/confirmVnPay.html -->
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
 <head>
     <title>Order Confirmation</title>
-    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .invoice-container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #e7f1ff;
+        }
+        .store-info, .customer-info {
+            margin-bottom: 20px;
+        }
+        .store-info h2, .invoice-title {
+            text-align: center;
+        }
+        .invoice-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .details-table th, .details-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .details-table th {
+            background-color: #f2f2f2;
+        }
+        .summary {
+            text-align: right;
+        }
+        .summary p {
+            margin: 5px 0;
+        }
+        .note {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-<section class="container mt-5">
-    <h1>Order Confirmation</h1>
-    <p>Status: <span th:text="${status}">Transaction Status</span></p>
-    <p>Transaction ID: <span th:text="${transactionId}">Transaction ID</span></p>
-    <p>Amount: <span th:text="${amount}">Amount</span></p>
-    <p th:text="${message}">Your order has been successfully placed. Thank you for your purchase!</p>
-    <h2>Customer Information</h2>
-    <p>Name: <span th:text="${customerName}">Customer Name</span></p>
-    <p>Address: <span th:text="${customerAddress}">Customer Address</span></p>
-    <p>Phone: <span th:text="${phoneNumber}">Phone Number</span></p>
-    <p>Email: <span th:text="${email}">Email</span></p>
-    <h2>Order Details</h2>
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Product Name</th>
-            <th>Quantity</th>
-            <th>Unit Price</th>
-            <th>Total Price</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="item : ${orderDetails}">
-            <td th:text="${item.productName}">Product Name</td>
-            <td th:text="${item.quantity}">Quantity</td>
-            <td th:text="${item.unitPrice}">Unit Price</td>
-            <td th:text="${item.quantity * item.unitPrice}">Total Price</td>
-        </tr>
-        </tbody>
-    </table>
+<section layout:fragment="content" class="container mt-3">
+    <div class="invoice-container">
+        <div class="store-info">
+            <h2>Cửa Hàng ABC</h2>
+            <p>Địa chỉ: 123 Đường ABC, Quận 1, TP.HCM</p>
+            <p>Số điện thoại: (0123) 456-789</p>
+            <p>Email: contact@abcstore.com</p>
+            <p>Mã số thuế: 123456789</p>
+        </div>
+
+        <div class="invoice-title">
+            <h2>HÓA ĐƠN BÁN HÀNG</h2>
+            <p>Ngày phát hành: <span th:text="${#dates.format(order?.orderDate, 'dd/MM/yyyy')}"></span></p>
+            <p>Mã hóa đơn: <span th:text="${order?.id}"></span></p>
+        </div>
+
+        <div class="customer-info">
+            <h3>Thông tin khách hàng:</h3>
+            <p>Tên khách hàng: <span th:text="${order?.customerName}"></span></p>
+            <p>Địa chỉ: <span th:text="${order?.customerAddress}"></span></p>
+            <p>Số điện thoại: <span th:text="${order?.phoneNumber}"></span></p>
+            <p>Email: <span th:text="${order?.email}"></span></p>
+        </div>
+
+        <h3>Chi tiết đơn hàng</h3>
+        <table class="details-table table table-bordered">
+            <thead>
+            <tr>
+                <th>STT</th>
+                <th>Tên Sản Phẩm</th>
+                <th>Số Lượng</th>
+                <th>Đơn Giá</th>
+                <th>Thành Tiền</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="orderDetail, iterStat : ${orderDetails}">
+                <td th:text="${iterStat.count}"></td>
+                <td th:text="${orderDetail.productName}"></td>
+                <td th:text="${orderDetail.quantity}"></td>
+                <td th:text="${#numbers.formatDecimal(orderDetail.unitPrice, 1, 'COMMA', 2, 'POINT')}"></td>
+                <td th:text="${#numbers.formatDecimal(orderDetail.unitPrice * orderDetail.quantity, 1, 'COMMA', 2, 'POINT')}"></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="summary">
+            <p><strong>Tổng cộng:</strong> <span th:text="${#numbers.formatDecimal(order?.totalAmount, 1, 'COMMA', 2, 'POINT')}"></span> VND</p>
+        </div>
+
+        <div class="note">
+            <p><strong>Ghi chú:</strong> <span th:text="${order?.notes}"></span></p>
+            <p>Cảm ơn quý khách đã mua sắm tại Cửa Hàng ABC!</p>
+        </div>
+    </div>
+
+    <div th:if="${status != null}" class="mt-4">
+        <h3>Trạng thái thanh toán</h3>
+        <p>Trạng thái: <span th:text="${order?.orderStatus}"></span></p>
+        <p th:if="${transactionId != null}">Mã giao dịch: <span th:text="${transactionId}"></span></p>
+        <p th:if="${amount != null}">Số tiền: <span th:text="${amount}"></span></p>
+        <p><span th:text="${message}"></span></p>
+    </div>
 </section>
-<script th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/js/jquery-3.7.0.min.js}"></script>
 </body>
 </html>

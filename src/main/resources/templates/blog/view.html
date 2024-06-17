@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>View Blog Post</title>
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <style>
+        .blog-post-img {
+            max-height: 400px;
+            object-fit: cover;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <img th:src="${blogPost.imageUrl}" class="card-img-top blog-post-img" alt="Blog Post Image">
+                <div class="card-body">
+                    <h1 th:text="${blogPost.title}">Blog Post Title</h1>
+                    <p class="text-muted" th:text="${blogPost.author.username}">Author</p>
+                    <p class="text-muted" th:text="${#dates.format(blogPost.createdAt, 'dd/MM/yyyy')}">Created At</p>
+                    <p class="card-text" th:utext="${blogPost.content}">Blog post content...</p>
+                    <span class="badge bg-secondary" th:text="${blogPost.category}">Category</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

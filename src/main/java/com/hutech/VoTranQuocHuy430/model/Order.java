@@ -20,7 +20,7 @@ import java.util.List;
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Temporal(TemporalType.DATE)
     private Date orderDate;
@@ -48,5 +48,17 @@ public class Order {
     private List<OrderDetail> orderDetails;
 
     private double totalAmount;
-    private String status;
+
+    @Enumerated(EnumType.STRING)
+    private OrderStatus orderStatus;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @PrePersist
+    protected void onCreate() {
+        this.orderDate = new Date();
+        this.orderStatus = OrderStatus.ORDER_PLACED;
+    }
 }

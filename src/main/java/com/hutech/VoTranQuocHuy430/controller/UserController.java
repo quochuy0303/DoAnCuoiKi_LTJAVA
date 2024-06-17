@@ -1,20 +1,47 @@
 package com.hutech.VoTranQuocHuy430.controller;
 
+import com.hutech.VoTranQuocHuy430.model.Order;
+import com.hutech.VoTranQuocHuy430.model.PasswordResetToken;
 import com.hutech.VoTranQuocHuy430.model.User;
+import com.hutech.VoTranQuocHuy430.repository.PasswordResetTokenRepository;
+import com.hutech.VoTranQuocHuy430.service.EmailService;
+import com.hutech.VoTranQuocHuy430.service.OrderService;
 import com.hutech.VoTranQuocHuy430.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 @Controller // Đánh dấu lớp này là một Controller trong Spring MVC.
 @RequestMapping("/")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final EmailService emailService;
+    private final OrderService orderService;
+    private final PasswordResetTokenRepository tokenRepository;
+
+    @GetMapping("/user/profile")
+    public String getUserProfile(Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User user = userService.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        model.addAttribute("user", user);
+        return "users/profile";
+    }
+
     @GetMapping("/login")
     public String login() {
         return "users/login";
@@ -41,5 +68,72 @@ public class UserController {
         userService.setDefaultRole(user.getUsername()); // Gán vai trò mặc định cho người dùng
         return "redirect:/login"; // Chuyển hướng người dùng tới trang "login"
     }
+
+    @GetMapping("/forgot-password")
+    public String forgotPassword(Model model) {
+        model.addAttribute("email", "");
+        return "users/forgot-password";
+    }
+
+    @PostMapping("/forgot-password")
+    public String processForgotPassword(@RequestParam("email") String email, Model model) {
+        Optional<User> userOptional = userService.findByEmail(email);
+        if (!userOptional.isPresent()) {
+            model.addAttribute("error", "Email không tồn tại");
+            return "users/forgot-password";
+        }
+
+        String token = UUID.randomUUID().toString();
+        PasswordResetToken resetToken = new PasswordResetToken();
+        resetToken.setToken(token);
+        resetToken.setEmail(email);
+        resetToken.setExpiryDate(LocalDateTime.now().plusMinutes(30));
+        tokenRepository.save(resetToken);
+
+        String resetUrl = "http://localhost:8080/reset-password?token=" + token;
+        emailService.sendEmail(email, "Đặt lại mật khẩu", "Nhấn vào liên kết để đặt lại mật khẩu: " + resetUrl);
+
+        model.addAttribute("message", "OTP đã được gửi tới email của bạn");
+        return "users/forgot-password";
+    }
+
+    @GetMapping("/reset-password")
+    public String resetPassword(@RequestParam("token") String token, Model model) {
+        Optional<PasswordResetToken> resetTokenOptional = tokenRepository.findByToken(token);
+        if (!resetTokenOptional.isPresent() || resetTokenOptional.get().getExpiryDate().isBefore(LocalDateTime.now())) {
+            model.addAttribute("error", "Token không hợp lệ hoặc đã hết hạn");
+            return "users/reset-password";
+        }
+        model.addAttribute("token", token);
+        return "users/reset-password";
+    }
+
+    @PostMapping("/reset-password")
+    public String processResetPassword(@RequestParam("token") String token, @RequestParam("password") String password, Model model) {
+        try {
+            Optional<PasswordResetToken> resetTokenOptional = tokenRepository.findByToken(token);
+            if (!resetTokenOptional.isPresent() || resetTokenOptional.get().getExpiryDate().isBefore(LocalDateTime.now())) {
+                model.addAttribute("error", "Token không hợp lệ hoặc đã hết hạn");
+                return "users/reset-password";
+            }
+
+            Optional<User> userOptional = userService.findByEmail(resetTokenOptional.get().getEmail());
+            if (!userOptional.isPresent()) {
+                model.addAttribute("error", "Không tìm thấy người dùng");
+                return "users/reset-password";
+            }
+
+            User user = userOptional.get();
+            userService.updatePassword(user, password);
+            tokenRepository.delete(resetTokenOptional.get());
+
+            return "redirect:/login";
+        } catch (Exception e) {
+            e.printStackTrace(); // Ghi lại thông tin lỗi vào log
+            model.addAttribute("error", "Đã xảy ra lỗi. Vui lòng thử lại sau.");
+            return "users/reset-password";
+        }
+    }
+
 }
 

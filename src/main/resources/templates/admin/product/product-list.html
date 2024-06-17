@@ -1,48 +1,64 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Product List - Admin</title>
-    <link href="/css/bootstrap.min.css" rel="stylesheet">
-    <link th:fragment="link-css" rel="stylesheet" th:href="@{/css/view.css}">
+    <link th:href="@{/css/bootstrap.css}" rel="stylesheet">
+    <link th:href="@{/css/sb-admin-2.css}" rel="stylesheet">
+    <style>
+        .table-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+        }
+    </style>
 </head>
 <body>
 <div class="container mt-5">
-    <h2>Product List</h2>
+    <h2 class="mb-4">Product List</h2>
     <a href="/admin/products/add" class="btn btn-primary mb-3">Add Product</a>
-    <table class="table table-bordered">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Price</th>
-            <th>Description</th>
-            <th>Category</th>
-            <th>Manufacturer</th>
-            <th>Brand</th>
-            <th>Image</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="product : ${products}">
-            <td th:text="${product.id}"></td>
-            <td th:text="${product.name}"></td>
-            <td th:text="${product.price}"></td>
-            <td th:text="${product.description}"></td>
-            <td th:text="${product.category.name}"></td>
-            <td th:text="${product.manufacturer.name}"></td>
-            <td th:text="${product.brand.name}"></td>
-            <td><img th:src="@{${product.image}}" alt="Image" style="width: 100px; height: 100px; object-fit: cover;"></td>
-            <td>
-                <a th:href="@{/admin/products/edit/{id}(id=${product.id})}" class="btn btn-warning">Edit</a>
-                <a th:href="@{/admin/products/delete/{id}(id=${product.id})}" class="btn btn-danger">Delete</a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Products</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="thead-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Manufacturer</th>
+                        <th>Brand</th>
+                        <th>Image</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="product : ${products}">
+                        <td th:text="${product.id}"></td>
+                        <td th:text="${product.name}"></td>
+                        <td th:text="${product.price}"></td>
+                        <td th:text="${product.description}"></td>
+                        <td th:text="${product.category.name}"></td>
+                        <td th:text="${product.manufacturer.name}"></td>
+                        <td th:text="${product.brand.name}"></td>
+                        <td><img th:src="@{${product.image}}" alt="Image" class="table-img"></td>
+                        <td>
+                            <a th:href="@{/admin/products/edit/{id}(id=${product.id})}" class="btn btn-warning">Edit</a>
+                            <a th:href="@{/admin/products/delete/{id}(id=${product.id})}" class="btn btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
-<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/js/jquery-3.7.0.min.js}"></script>
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>

@@ -1,81 +1,60 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout}">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
     <title>Update Product</title>
-    <link th:fragment="link-css" rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
-    <link th:fragment="link-css" rel="stylesheet" th:href="@{/css/view.css}">
-    <style>
-        /* Your existing CSS styles */
-    </style>
+    <link th:href="@{/css/bootstrap.css}" rel="stylesheet">
+    <link th:href="@{/css/sb-admin-2.css}" rel="stylesheet">
 </head>
 <body>
-<section layout:fragment="content" class="container mt-5">
-    <div class="registration-form">
-        <h1 class="text-center mb-4">Update Product</h1>
-        <form th:action="@{'/admin/products/update/' + ${product.id}}" th:object="${product}" method="post" class="needs-validation" novalidate>
-            <div class="mb-3">
-                <label for="name" class="form-label">Name:</label>
-                <input type="text" th:field="*{name}" class="form-control" id="name" required>
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
-            </div>
-            <div class="mb-3">
-                <label for="price" class="form-label">Price:</label>
-                <input type="number" step="0.01" th:field="*{price}" class="form-control" id="price" required>
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div>
-            </div>
-            <div class="mb-3">
-                <label for="category" class="form-label">Category:</label>
-                <select th:field="*{category}" class="form-control" id="category">
-                    <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"></option>
-                </select>
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></div>
-            </div>
-            <div class="mb-3">
-                <label for="manufacturer" class="form-label">Manufacturer:</label>
-                <select th:field="*{manufacturer}" class="form-control" id="manufacturer">
-                    <option th:each="manufacturer : ${manufacturers}" th:value="${manufacturer.id}" th:text="${manufacturer.name}"></option>
-                </select>
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('manufacturer')}" th:errors="*{manufacturer}"></div>
-            </div>
-            <div class="mb-3">
-                <label for="brand" class="form-label">Brand:</label>
-                <select th:field="*{brand}" class="form-control" id="brand">
-                    <option th:each="brand : ${brands}" th:value="${brand.id}" th:text="${brand.name}"></option>
-                </select>
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('brand')}" th:errors="*{brand}"></div>
-            </div>
-            <div class="mb-3">
-                <label for="description" class="form-label">Description:</label>
-                <textarea th:field="*{description}" class="form-control" id="description" rows="4" required></textarea>
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
-            </div>
-            <div class="mb-3">
-                <label for="image" class="form-label">Image URL:</label>
-                <input type="text" th:field="*{image}" class="form-control" id="image" required>
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('image')}" th:errors="*{image}"></div>
-            </div>
-            <button type="submit" class="btn btn-primary btn-block mt-4">Update Product</button>
-        </form>
+<div class="container mt-5">
+    <h1 class="mb-4">Update Product</h1>
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Product Details</h6>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/admin/products/update/{id}(id=${product.id})}" th:object="${product}" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="name">Product Name</label>
+                    <input type="text" id="name" th:field="*{name}" class="form-control" placeholder="Enter product name">
+                </div>
+                <div class="form-group">
+                    <label for="price">Price</label>
+                    <input type="text" id="price" th:field="*{price}" class="form-control" placeholder="Enter product price">
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" th:field="*{description}" class="form-control" placeholder="Enter product description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" th:field="*{category.id}" class="form-control">
+                        <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="manufacturer">Manufacturer</label>
+                    <select id="manufacturer" th:field="*{manufacturer.id}" class="form-control">
+                        <option th:each="manufacturer : ${manufacturers}" th:value="${manufacturer.id}" th:text="${manufacturer.name}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="brand">Brand</label>
+                    <select id="brand" th:field="*{brand.id}" class="form-control">
+                        <option th:each="brand : ${brands}" th:value="${brand.id}" th:text="${brand.name}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="image">Image</label>
+                    <input type="file" id="image" name="file" class="form-control-file">
+                </div>
+                <button type="submit" class="btn btn-primary">Update Product</button>
+            </form>
+        </div>
     </div>
-</section>
-<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</div>
 <script th:src="@{/js/jquery-3.7.0.min.js}"></script>
-<script>
-    // Custom client-side validation handling
-    (function () {
-        'use strict';
-        var forms = document.querySelectorAll('.needs-validation');
-        Array.prototype.slice.call(forms).forEach(function (form) {
-            form.addEventListener('submit', function (event) {
-                if (!form.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            }, false);
-        });
-    })();
-</script>
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Order History</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/sb-admin-2.min.css}">
+</head>
+<body id="page-top">
+
+<!-- Page Wrapper -->
+<div id="wrapper">
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+        <!-- Main Content -->
+        <div id="content">
+
+            <!-- Begin Page Content -->
+            <div class="container-fluid">
+
+                <!-- Page Heading -->
+                <h1 class="h3 mb-4 text-gray-800">Order History</h1>
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Orders</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Order Date</th>
+                                    <th>Total Amount</th>
+                                    <th>Status</th>
+                                    <th>Details</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="order : ${orders}">
+                                    <td th:text="${order.id}"></td>
+                                    <td th:text="${#dates.format(order.orderDate, 'yyyy-MM-dd')}"></td>
+                                    <td th:text="${#numbers.formatDecimal(order.totalAmount, 1, 'COMMA', 2, 'POINT')}"></td>
+                                    <td th:text="${order.orderStatus}"></td>
+                                    <td>
+                                        <a th:href="@{/order/confirmation(orderId=${order.id})}" class="btn btn-info btn-sm">View Details</a>
+                                        <button type="button" class="btn btn-secondary btn-sm" onclick="toggleDetails('details-' + [[${order.id}]])">Show/Hide Products</button>
+                                        <form th:action="@{/order/cancel}" method="get" style="display: inline;">
+                                            <input type="hidden" name="orderId" th:value="${order.id}">
+                                            <button type="submit" class="btn btn-danger btn-sm" th:if="${order.orderStatus == T(com.hutech.VoTranQuocHuy430.model.OrderStatus).PENDING_SHIPMENT}">Cancel Order</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <tr th:each="order : ${orders}" th:id="'details-' + ${order.id}" style="display: none;">
+                                    <td colspan="5">
+                                        <table class="table table-bordered mt-3">
+                                            <thead>
+                                            <tr>
+                                                <th>Product Name</th>
+                                                <th>Quantity</th>
+                                                <th>Unit Price</th>
+                                                <th>Total</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr th:each="detail : ${order.orderDetails}">
+                                                <td th:text="${detail.productName}"></td>
+                                                <td th:text="${detail.quantity}"></td>
+                                                <td th:text="${#numbers.formatDecimal(detail.unitPrice, 1, 'COMMA', 2, 'POINT')}"></td>
+                                                <td th:text="${#numbers.formatDecimal(detail.unitPrice * detail.quantity, 1, 'COMMA', 2, 'POINT')}"></td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <!-- /.container-fluid -->
+
+        </div>
+        <!-- End of Main Content -->
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+</div>
+<!-- End of Page Wrapper -->
+
+<!-- Bootstrap core JavaScript-->
+<script th:src="@{/vendor/jquery/jquery.min.js}"></script>
+<script th:src="@{/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
+<!-- Core plugin JavaScript-->
+<script th:src="@{/vendor/jquery-easing/jquery.easing.min.js}"></script>
+
+<!-- Custom scripts for all pages-->
+<script th:src="@{/js/sb-admin-2.min.js}"></script>
+
+<script>
+    function toggleDetails(id) {
+        var element = document.getElementById(id);
+        if (element.style.display === "none") {
+            element.style.display = "table-row";
+        } else {
+            element.style.display = "none";
+        }
+    }
+</script>
+</body>
+</html>

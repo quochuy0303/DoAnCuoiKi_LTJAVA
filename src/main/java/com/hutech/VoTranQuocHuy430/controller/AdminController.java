@@ -3,10 +3,10 @@ package com.hutech.VoTranQuocHuy430.controller;
 import com.hutech.VoTranQuocHuy430.model.*;
 import com.hutech.VoTranQuocHuy430.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -26,19 +26,21 @@ public class AdminController {
     @Autowired
     private BrandService brandService;
 
+    private final UserService userService;
+
     @Autowired
-    private UserService userService;
+    public AdminController(@Lazy UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
         List<Product> products = productService.getAllProducts();
-        List<Order> orders = orderService.getAllOrders();
         List<Manufacturer> manufacturers = manufacturerService.getAllManufacturers();
         List<Brand> brands = brandService.getAllBrands();
         List<User> users = userService.getAllUsers();
 
         model.addAttribute("products", products);
-        model.addAttribute("orders", orders);
         model.addAttribute("manufacturers", manufacturers);
         model.addAttribute("brands", brands);
         model.addAttribute("users", users);
@@ -46,8 +48,25 @@ public class AdminController {
         return "admin/index";
     }
 
+    @GetMapping("/orders")
+    public String listOrders(Model model) {
+        List<Order> orders = orderService.getAllOrders();
+        model.addAttribute("orders", orders);
+        return "admin/order/list-order";
+    }
+
+    @PostMapping("/orders/update-status")
+    public String updateOrderStatus(@RequestParam Long orderId, @RequestParam OrderStatus status) {
+        Order order = orderService.getOrderById(orderId);
+        if (order != null) {
+            order.setOrderStatus(status);
+            orderService.save(order);
+        }
+        return "redirect:/admin/orders";
+    }
+
     @GetMapping("/other-page")
     public String otherPage() {
-        return "admin/404";  // Đây là tệp other_pages.html trong thư mục templates
+        return "admin/404";
     }
 }

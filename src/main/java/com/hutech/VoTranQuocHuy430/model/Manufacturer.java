@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 public class Manufacturer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     private String name;
     private String address;

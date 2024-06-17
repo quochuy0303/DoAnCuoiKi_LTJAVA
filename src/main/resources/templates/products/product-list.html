@@ -8,20 +8,129 @@
     <link th:fragment="link-css" rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
     <link th:fragment="custom-css" rel="stylesheet" th:href="@{/css/style.css}">
     <link th:href="@{/css/all.min.css}" rel="stylesheet">
+    <style>
+        .search {
+            margin-bottom: auto;
+            margin-top: auto;
+            height: 70px;
+            background-color: #fff;
+            border-radius: 40px;
+            padding: 10px;
+            position: relative;
+        }
+
+        .search_input {
+            color: black;
+            border: 0;
+            outline: 0;
+            background: none;
+            width: 0;
+            margin-top: 5px;
+            caret-color: transparent;
+            line-height: 40px;
+            transition: width 0.4s linear;
+        }
+
+        .search .search_input {
+            padding: 0 10px;
+            width: 550px;
+            caret-color: red;
+            transition: width 0.4s linear;
+        }
+
+        .search:hover > .search_icon {
+            background: red;
+            color: #fff;
+        }
+
+        .search_icon {
+            height: 50px;
+            width: 50px;
+            float: right;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            color: white;
+            background-color: black;
+        }
+
+        a:link {
+            text-decoration: none;
+        }
+
+        .suggestions {
+            background-color: white;
+            border: 1px solid #ddd;
+            max-height: 200px;
+            overflow-y: auto;
+            position: absolute;
+            width: 550px;
+            z-index: 1000;
+        }
+
+        .suggestion-item {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .suggestion-item:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
 </head>
 <body>
 <section layout:fragment="content" class="container mt-5">
     <div class="container">
-        <form id="searchForm" class="d-flex mb-4">
-            <input type="text" id="searchInput" class="form-control me-2" style="width: 40%;" placeholder="Search...">
-            <button type="submit" class="btn btn-primary">Search</button>
-        </form>
+        <div class="container h-175">
+            <div class="d-flex justify-content-center h-100">
+                <div class="search">
+                    <form id="searchForm" method="GET" action="/products">
+                        <input class="search_input" type="text" id="search" name="search" placeholder="Nhập sản phẩm cần tìm" oninput="fetchSuggestions(this.value)" th:value="${search}">
+                        <div id="suggestions" class="suggestions"></div>
+                        <a href="#" class="search_icon" onclick="document.getElementById('searchForm').submit(); return false;"><i class="fa fa-search"></i></a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="container mt-5">
+            <form method="GET" action="/products">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="productName" class="form-label">Product Name</label>
+                        <input type="text" class="form-control" id="productName" name="search" placeholder="Enter product name" th:value="${search}">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="category" class="form-label">Category</label>
+                        <select class="form-select" id="category" name="category">
+                            <option value="" th:selected="${category == null or category == ''}">Choose...</option>
+                            <option th:each="cat : ${categories}" th:value="${cat.name}" th:text="${cat.name}" th:selected="${category == cat.name}">Category Name</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="priceFrom" class="form-label">Price From</label>
+                        <input type="number" class="form-control" id="priceFrom" name="priceFrom" placeholder="0" th:value="${priceFrom}">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="priceTo" class="form-label">Price To</label>
+                        <input type="number" class="form-control" id="priceTo" name="priceTo" placeholder="1000" th:value="${priceTo}">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 text-end">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
         <div class="row" id="productsContainer">
             <div th:each="product : ${products}" class="col-md-4 mb-4">
                 <div class="card">
                     <div class="content">
                         <div class="imgBx">
-                            <img th:src="${product.image}" alt="Product Image" class="card-img-top">
+                            <img th:src="@{${product.image}}" alt="Product Image" class="card-img-top">
                         </div>
                         <div class="contentBx">
                             <h3 th:text="${product.name}"><br>
@@ -59,72 +168,38 @@
             </li>
         </ul>
     </nav>
-    <a th:href="@{/products/add}" class="btn btn-primary" sec:authorize="hasAnyAuthority('ADMIN')">Add New Product</a>
     <a th:href="@{/}" class="btn btn-link">Back to Home</a>
 </section>
 <script th:src="@{/js/bootstrap.min.js}"></script>
-<script th:src="@{/js/jquery- 3.7.0.min.js}"></script>
+<script th:src="@{/js/jquery-3.7.0.min.js}"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
-    $(document).ready(function() {
-        $('#searchForm').submit(function(e) {
-            e.preventDefault();
-            var keyword = $('#searchInput').val();
+    function fetchSuggestions(keyword) {
+        if (keyword.length > 0) {
             $.ajax({
-                url: '/products/search',
                 type: 'GET',
+                url: '/products/search',
                 data: { keyword: keyword },
-                success: function(data) {
-                    updateProductList(data);
+                success: function (response) {
+                    console.log("Response:", response);  // Log the response
+                    $('#suggestions').empty();
+                    response.forEach(function (item) {
+                        $('#suggestions').append('<div class="suggestion-item" onclick="selectSuggestion(\'' + item + '\')">' + item + '</div>');
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error:", error);  // Log any errors
                 }
             });
-        });
-
-        function updateProductList(products) {
-            var $container = $('#productsContainer');
-            $container.empty();
-            products.forEach(function(product) {
-                var productHtml = `
-                    <div class="col-md-4 mb-4">
-                        <div class="card">
-                            <div class="content">
-                                <div class="imgBx">
-                                    <img src="${product.image}" alt="Product Image" class="card-img-top">
-                                </div>
-                                <div class="contentBx">
-                                    <h3>${product.name}<br>
-                                        <span>${product.description}</span>
-                                    </h3>
-                                    <p class="card-text"><strong>Price:</strong> $${product.price}</p>
-                                </div>
-                            </div>
-                            <ul class="sci">
-                                <li>
-                                    <a href="/products/details/${product.id}" class="btn btn-info btn-sm d-inline-block">Details</a>
-                                    <a>
-                                        <form action="/cart/add" method="post">
-                                            <div class="input-group mb-3">
-                                                <input type="number" name="quantity" min="1" value="1" class="form-control">
-                                                <input type="hidden" value="${product.id}" name="productId"/>
-                                                <button type="submit" class="button-85" role="button">Add to Cart</button>
-                                            </div>
-                                        </form>
-                                    </a>
-                                </li>
-                                <li>
-                                    <div sec:authorize="hasAuthority('ADMIN')">
-                                        <a href="/products/edit/${product.id}" class="btn btn-success btn-sm d-inline-block">Sửa</a>
-                                        <a href="/products/delete/${product.id}" class="btn btn-danger btn-sm d-inline-block" onclick="return confirm('Bạn có chắc không?')">Xóa</a>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                `;
-                $container.append(productHtml);
-            });
+        } else {
+            $('#suggestions').empty();
         }
-    });
+    }
+
+    function selectSuggestion(value) {
+        $('#search').val(value);
+        $('#suggestions').empty();
+    }
 </script>
 </body>
 </html>

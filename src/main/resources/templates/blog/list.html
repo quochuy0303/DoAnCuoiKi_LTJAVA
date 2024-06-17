@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}" lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Blog Posts</title>
+    <link th:fragment="link-css" rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link th:fragment="custom-css" rel="stylesheet" th:href="@{/css/style.css}">
+    <link th:fragment="view-css" rel="stylesheet" th:href="@{/css/view.css}">
+    <style>
+        .blog-card {
+            margin-bottom: 20px;
+            width: 600px;
+        }
+        .blog-card img {
+            max-height: 200px;
+            object-fit: cover;
+        }
+        .blog-card .card-body {
+            padding: 15px;
+        }
+        .blog-card .card-footer {
+            background-color: transparent;
+            border-top: none;
+        }
+        .blog-card .badge-category {
+            background-color: #ff6f61;
+            color: white;
+        }
+    </style>
+    <link th:fragment="link-css" rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link th:fragment="link-css" rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<section layout:fragment="content" class="container mt-5">
+    <div class="container">
+        <h1 class="my-4">Bài viết mới</h1>
+        <div class="row">
+            <div class="col-md-4" th:each="post : ${blogPosts}">
+                <div class="card blog-card">
+                    <img th:src="@{${post.imageUrl}}" class="card-img-top" alt="Blog Post Image">
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="${post.title}">Blog Post Title</h5>
+                        <p class="card-text" th:text="${post.excerpt}">A short description of the blog post...</p>
+                        <span class="badge badge-category" th:text="${post.category}">Category</span>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-clock"></i> <span th:text="${#temporals.format(post.createdAt, 'dd/MM/yyyy')}">11/06/2024</span>
+                        </small>
+                        <small class="text-muted">
+                            <i class="fas fa-eye"></i> <span th:text="${post.views}">1K</span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex justify-content-center">
+            <a href="#" class="btn btn-primary">Tải thêm</a>
+        </div>
+    </div>
+</section>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/js/jquery- 3.7.0.min.js}"></script>
+</body>
+</html>

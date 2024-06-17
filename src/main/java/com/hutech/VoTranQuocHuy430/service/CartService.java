@@ -12,11 +12,13 @@ import java.util.*;
 @Service
 @SessionScope
 public class CartService {
+    @Autowired
+    private ProductRepository productRepository;
+
 
     private List<CartItem> cartItems = new ArrayList<>();
     Map<Long, CartItem> cartItemMap = new HashMap<>();
-    @Autowired
-    private ProductRepository productRepository;
+
 
     public void addToCart(Long productId, int quantity) {
         Product product = productRepository.findById(productId)

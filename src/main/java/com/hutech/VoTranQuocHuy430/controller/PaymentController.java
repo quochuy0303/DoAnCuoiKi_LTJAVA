@@ -2,12 +2,15 @@ package com.hutech.VoTranQuocHuy430.controller;
 
 import com.hutech.VoTranQuocHuy430.DTO.PaymentResDTO;
 import com.hutech.VoTranQuocHuy430.config.Config;
-import com.hutech.VoTranQuocHuy430.model.CartItem;
-import com.hutech.VoTranQuocHuy430.model.Order;
+import com.hutech.VoTranQuocHuy430.model.*;
 import com.hutech.VoTranQuocHuy430.service.CartService;
 import com.hutech.VoTranQuocHuy430.service.OrderService;
+import com.hutech.VoTranQuocHuy430.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,8 +29,12 @@ public class PaymentController {
 
     @Autowired
     private OrderService orderService;
+
     @Autowired
     private CartService cartService;
+
+    @Autowired
+    private UserService userService;
 
     @PostMapping("/create-payment")
     public String createPayment(
@@ -40,17 +47,30 @@ public class PaymentController {
             @RequestParam String paymentMethod,
             Model model) throws Exception {
 
+        // Lấy user từ SecurityContextHolder
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User user = userService.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        // Lấy danh sách CartItem từ CartService
         List<CartItem> cartItems = cartService.getCartItems();
-        Order order = orderService.createOrder(customerName, customerAddress, phoneNumber, email, notes, paymentMethod, cartItems);
+
+        // Tạo đơn hàng mới
+        Order order = orderService.createOrder(customerName, customerAddress, phoneNumber, email, notes, paymentMethod, cartItems, user);
 
         if ("vnpay".equalsIgnoreCase(paymentMethod)) {
             ResponseEntity<PaymentResDTO> paymentResponse = orderService.initiateVnpayPayment(req, order);
             return "redirect:" + paymentResponse.getBody().getURL();
         }
 
+        List<OrderDetail> orderDetails = order.getOrderDetails(); // Lấy chi tiết đơn hàng
+        if (orderDetails == null) {
+            orderDetails = orderService.getOrderDetailById(order.getId());
+        }
+
         model.addAttribute("message", "Your order has been successfully placed.");
         model.addAttribute("order", order);
-        model.addAttribute("orderDetails", order.getOrderDetails());
+        model.addAttribute("orderDetails", orderDetails);
         model.addAttribute("customerName", order.getCustomerName());
         model.addAttribute("customerAddress", order.getCustomerAddress());
         model.addAttribute("phoneNumber", order.getPhoneNumber());
@@ -58,7 +78,6 @@ public class PaymentController {
 
         return "cart/order-confirmation";
     }
-
 
     @GetMapping("/vnpay_return")
     public String vnPayReturn(HttpServletRequest req, Model model) {
@@ -77,22 +96,33 @@ public class PaymentController {
         if (signValue.equals(vnp_SecureHash)) {
             // Payment success logic
             String orderId = vnp_Params.get("vnp_TxnRef");
-            Order order = orderService.findById(Long.parseLong(orderId)).orElseThrow();
-            order.setStatus("PAID");
-            orderService.save(order);
+            Order order = orderService.findById(Long.parseLong(orderId)).orElse(null);
+            if (order != null) {
+                order.setOrderStatus(OrderStatus.COMPLETED); // Hoặc trạng thái thích hợp
+                orderService.save(order);
 
-            model.addAttribute("status", "Success");
-            model.addAttribute("transactionId", vnp_Params.get("vnp_TransactionNo"));
-            model.addAttribute("amount", vnp_Params.get("vnp_Amount"));
-            model.addAttribute("message", "Your order has been successfully placed. Thank you for your purchase!");
+                // Retrieve order details
+                List<OrderDetail> orderDetails = order.getOrderDetails();
+                if (orderDetails == null) {
+                    orderDetails = orderService.getOrderDetailById(order.getId());
+                }
 
-            // Add order details to the model
-            model.addAttribute("order", order);
-            model.addAttribute("orderDetails", order.getOrderDetails());
-            model.addAttribute("customerName", order.getCustomerName());
-            model.addAttribute("customerAddress", order.getCustomerAddress());
-            model.addAttribute("phoneNumber", order.getPhoneNumber());
-            model.addAttribute("email", order.getEmail());
+                model.addAttribute("status", "Success");
+                model.addAttribute("transactionId", vnp_Params.get("vnp_TransactionNo"));
+                model.addAttribute("amount", vnp_Params.get("vnp_Amount"));
+                model.addAttribute("message", "Your order has been successfully placed. Thank you for your purchase!");
+
+                // Add order details to the model
+                model.addAttribute("order", order);
+                model.addAttribute("orderDetails", orderDetails);
+                model.addAttribute("customerName", order.getCustomerName());
+                model.addAttribute("customerAddress", order.getCustomerAddress());
+                model.addAttribute("phoneNumber", order.getPhoneNumber());
+                model.addAttribute("email", order.getEmail());
+            } else {
+                model.addAttribute("status", "Failed");
+                model.addAttribute("message", "Order not found.");
+            }
         } else {
             model.addAttribute("status", "Failed");
             model.addAttribute("message", "Payment verification failed.");
@@ -100,5 +130,4 @@ public class PaymentController {
 
         return "cart/confirmVnPay";
     }
-
 }

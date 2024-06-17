@@ -1,5 +1,6 @@
 package com.hutech.VoTranQuocHuy430.controller;
 
+import com.hutech.VoTranQuocHuy430.model.Category;
 import com.hutech.VoTranQuocHuy430.model.Product;
 import com.hutech.VoTranQuocHuy430.service.*;
 import jakarta.validation.Valid;
@@ -12,6 +13,8 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Controller
 @RequestMapping("/products")
 public class ProductController {
@@ -20,26 +23,32 @@ public class ProductController {
     private ProductService productService;
 
     @Autowired
-    private CategoryService categoryService;
-
-    @Autowired
-    private ManufacturerService manufacturerService;
-
-    @Autowired
-    private BrandService brandService;
-
-    @Autowired
     private CartService cartService;
 
+    @Autowired
+    private CategoryService categoryService;
+
     @GetMapping
-    public String showProductList(Model model, @RequestParam(defaultValue = "0") int page) {
-        int pageSize = 4;
+    public String showProductList(Model model, @RequestParam(defaultValue = "0") int page,
+                                  @RequestParam(required = false) String search,
+                                  @RequestParam(required = false) String category,
+                                  @RequestParam(required = false) Double priceFrom,
+                                  @RequestParam(required = false) Double priceTo) {
+        int pageSize = 6;
         Pageable pageable = PageRequest.of(page, pageSize);
-        Page<Product> productPage = productService.getAllProductsPageable(pageable);
+        Page<Product> productPage = productService.searchProducts(search, category, priceFrom, priceTo, pageable);
+        List<Category> categories = categoryService.getAllCategories();
+
         model.addAttribute("products", productPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", productPage.getTotalPages());
-        return "/products/product-list";
+        model.addAttribute("search", search);
+        model.addAttribute("category", category);
+        model.addAttribute("priceFrom", priceFrom);
+        model.addAttribute("priceTo", priceTo);
+        model.addAttribute("categories", categories);
+
+        return "products/product-list";
     }
 
     @GetMapping("/details/{id}")
@@ -59,5 +68,14 @@ public class ProductController {
     public String addToCart(@RequestParam Long productId, @RequestParam int quantity) {
         cartService.addToCart(productId, quantity);
         return "redirect:/cart";
+    }
+
+    @GetMapping("/search")
+    @ResponseBody
+    public List<String> searchProductsByName(@RequestParam String keyword) {
+        System.out.println("Search keyword: " + keyword);  // Log the search keyword
+        List<String> productNames = productService.findProductNamesByKeyword(keyword);
+        System.out.println("Found products: " + productNames);  // Log the found products
+        return productNames;
     }
 }

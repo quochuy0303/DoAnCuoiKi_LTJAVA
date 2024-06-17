@@ -2,9 +2,11 @@ package com.hutech.VoTranQuocHuy430.service;
 
 import com.hutech.VoTranQuocHuy430.DTO.PaymentResDTO;
 import com.hutech.VoTranQuocHuy430.config.Config;
+import com.hutech.VoTranQuocHuy430.exception.ResourceNotFoundException;
 import com.hutech.VoTranQuocHuy430.model.CartItem;
 import com.hutech.VoTranQuocHuy430.model.Order;
 import com.hutech.VoTranQuocHuy430.model.OrderDetail;
+import com.hutech.VoTranQuocHuy430.model.User;
 import com.hutech.VoTranQuocHuy430.repository.OrderDetailRepository;
 import com.hutech.VoTranQuocHuy430.repository.OrderRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,18 +28,25 @@ import java.util.*;
 @Transactional
 public class OrderService {
 
-
     @Autowired
     private OrderRepository orderRepository;
     private final OrderDetailRepository orderDetailRepository;
     private final CartService cartService;
-    private final Config config; // Thêm Config vào đây
+    private final Config config;
 
     public double calculateTotalAmount(List<CartItem> cartItems) {
         return cartItems.stream().mapToDouble(item -> item.getProduct().getPrice() * item.getQuantity()).sum();
     }
 
-    public Order createOrder(String customerName, String customerAddress, String phoneNumber, String email, String notes, String paymentMethod, List<CartItem> cartItems) {
+    public Order getOrderById(Long orderId) {
+        return orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+    }
+
+    public List<OrderDetail> getOrderDetailById(Long orderId) {
+        return orderDetailRepository.findByOrderId(orderId);
+    }
+
+    public Order createOrder(String customerName, String customerAddress, String phoneNumber, String email, String notes, String paymentMethod, List<CartItem> cartItems, User user) {
         Order order = new Order();
         order.setCustomerName(customerName);
         order.setCustomerAddress(customerAddress);
@@ -45,22 +54,21 @@ public class OrderService {
         order.setEmail(email);
         order.setNotes(notes);
         order.setPaymentMethod(paymentMethod);
-        order.setOrderDate(new Date()); // Đặt ngày đặt hàng là ngày hiện tại
-        order.setTotalAmount(calculateTotalAmount(cartItems)); // Set total amount
-        order = orderRepository.save(order); // Lưu đơn hàng vào cơ sở dữ liệu
+        order.setOrderDate(new Date());
+        order.setTotalAmount(calculateTotalAmount(cartItems));
+        order.setUser(user);
+        order = orderRepository.save(order);
 
-        // Lưu các mục đơn hàng vào cơ sở dữ liệu
         for (CartItem item : cartItems) {
             OrderDetail detail = new OrderDetail();
             detail.setOrder(order);
             detail.setProduct(item.getProduct());
-            detail.setProductName(item.getProduct().getName()); // Set product name
+            detail.setProductName(item.getProduct().getName());
             detail.setQuantity(item.getQuantity());
-            detail.setUnitPrice(item.getProduct().getPrice()); // Set unit price
+            detail.setUnitPrice(item.getProduct().getPrice());
             orderDetailRepository.save(detail);
         }
 
-        // Tùy chọn: xóa giỏ hàng sau khi đặt hàng
         cartService.clearCart();
 
         return order;
@@ -70,15 +78,17 @@ public class OrderService {
     public Optional<Order> findById(Long id) {
         return orderRepository.findById(id);
     }
+
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
     }
+
     public void save(Order order) {
         orderRepository.save(order);
     }
 
     public ResponseEntity<PaymentResDTO> initiateVnpayPayment(HttpServletRequest req, Order order) throws UnsupportedEncodingException {
-        double totalAmount = order.getTotalAmount() * 100; // VNPay yêu cầu số tiền phải nhân với 100
+        double totalAmount = order.getTotalAmount() * 100;
 
         String vnp_TxnRef = Config.getRandomNumber(8);
         String vnp_IpAddr = Config.getIpAddress(req);
@@ -96,7 +106,6 @@ public class OrderService {
         vnp_Params.put("vnp_ReturnUrl", config.getVnp_ReturnUrl());
         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
 
-        // Add vnp_CreateDate and vnp_ExpireDate
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
         String vnp_CreateDate = formatter.format(cld.getTime());
@@ -136,5 +145,10 @@ public class OrderService {
         paymentResDTO.setURL(paymentUrl);
 
         return ResponseEntity.status(HttpStatus.OK).body(paymentResDTO);
+    }
+
+
+    public List<Order> getOrderHistory(Long userId) {
+        return orderRepository.findByUserId(userId);
     }
 }

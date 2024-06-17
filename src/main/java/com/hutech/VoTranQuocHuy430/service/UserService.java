@@ -4,42 +4,45 @@ import com.hutech.VoTranQuocHuy430.Role;
 import com.hutech.VoTranQuocHuy430.model.User;
 import com.hutech.VoTranQuocHuy430.repository.IRoleRepository;
 import com.hutech.VoTranQuocHuy430.repository.IUserRepository;
-import com.hutech.VoTranQuocHuy430.repository.UserRepository;
-import jakarta.validation.constraints.NotNull;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+
 @Service
-@Slf4j
 @Transactional
 public class UserService implements UserDetailsService {
-    
+
+    private final IUserRepository userRepository;
+    private final IRoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+
     @Autowired
-    private IUserRepository userRepository;
-    @Autowired
-    private IRoleRepository roleRepository;
+    public UserService(IUserRepository userRepository, IRoleRepository roleRepository, @Lazy PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
-    // Lưu người dùng mới vào cơ sở dữ liệu sau khi mã hóa mật khẩu.
-    public void save(@NotNull User user) {
-        user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
+
+    public void save(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
     }
-    // Gán vai trò mặc định cho người dùng dựa trên tên người dùng.
+
     public void setDefaultRole(String username) {
         userRepository.findByUsername(username).ifPresentOrElse(
                 user -> {
-
                     user.getRoles().add(roleRepository.findRoleById(Role.USER.value));
                     userRepository.save(user);
                 },
@@ -48,8 +51,7 @@ public class UserService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws
-            UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         var user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         return org.springframework.security.core.userdetails.User
@@ -63,16 +65,16 @@ public class UserService implements UserDetailsService {
                 .build();
     }
 
-    // Tìm kiếm người dùng dựa trên tên đăng nhập.
-    public Optional<User> findByUsername() throws
-            UsernameNotFoundException {
-        return findByUsername(null);
-    }
-
-    // Tìm kiếm người dùng dựa trên tên đăng nhập.
-    public Optional<User> findByUsername(String username) throws
-            UsernameNotFoundException {
+    public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
-}
 
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    public void updatePassword(User user, String password) {
+        user.setPassword(passwordEncoder.encode(password));
+        userRepository.save(user);
+    }
+}

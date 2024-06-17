@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class OrderDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "order_id")
@@ -27,7 +27,6 @@ public class OrderDetail {
     private int quantity;
     private double unitPrice;
 
-    // Ensure productName is set when creating an order detail
     @PrePersist
     @PreUpdate
     private void setProductName() {
