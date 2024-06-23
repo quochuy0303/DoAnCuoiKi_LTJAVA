@@ -65,6 +65,19 @@ public class AdminController {
         return "redirect:/admin/orders";
     }
 
+    @GetMapping("user")
+    public String user(Model model) {
+        List<User> users = userService.getAllUsers();
+        model.addAttribute("users", users);
+        return "admin/user/list-user";
+    }
+
+    @PostMapping("user/delete")
+    public String deleteUser(@RequestParam Long id) {
+        userService.deleteUser(id);
+        return "redirect:/admin/user";
+    }
+
     @GetMapping("/other-page")
     public String otherPage() {
         return "admin/404";

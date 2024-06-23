@@ -128,9 +128,14 @@
                         <a th:href="@{/user/profile}">
                             <img src="https://bootdey.com/img/Content/avatar/avatar7.png" class="rounded-circle shadow-4" style="width: 80px; margin-right: 10px;" alt="Avatar" />
                         </a>
-                        <form th:action="@{/logout}" method="post">
-                            <button class="btn btn-outline-light" type="submit">Logout</button>
-                        </form>
+                        <div sec:authorize="hasAuthority('ADMIN')">
+                        <a style="text-decoration: none; height: 120px; width: 120px;" th:href="@{/admin/dashboard}">
+                            <i class="bi bi-gear-fill"></i>
+                        </a>
+                        </div>
+                        <a th:href="@{/cart}" class="text-white text-decoration-none">
+                            <i class="bi bi-cart"></i>
+                        </a>
                     </li>
                     <li class="nav-item" sec:authorize="!isAuthenticated()">
                         <a class="btn btn-outline-light" href="/login">Login</a>

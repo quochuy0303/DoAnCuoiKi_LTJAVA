@@ -36,6 +36,9 @@ public class User implements UserDetails {
     @NotBlank(message = "Password is required")
     private String password;
 
+    @Column(name = "address", length = 250)
+    private String address;
+
     @Column(name = "email", length = 50, unique = true)
     @NotBlank(message = "Email is required")
     @Size(min = 1, max = 50, message = "Email must be between 1 and 50 characters")

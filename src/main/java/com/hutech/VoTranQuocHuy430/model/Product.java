@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -23,7 +24,8 @@ public class Product {
 
     @NotNull(message = "Price cannot be null")
     @Positive(message = "Price must be positive")
-    private double price;
+    @Column(precision = 19, scale = 2)
+    private BigDecimal price;
 
     @NotEmpty(message = "Description cannot be empty")
     private String description;

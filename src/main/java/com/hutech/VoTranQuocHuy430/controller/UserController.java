@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+
 @Controller // Đánh dấu lớp này là một Controller trong Spring MVC.
 @RequestMapping("/")
 @RequiredArgsConstructor
@@ -134,6 +135,50 @@ public class UserController {
             return "users/reset-password";
         }
     }
+
+    @GetMapping("/user/profile/edit")
+    public String showEditForm(Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User user = userService.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        model.addAttribute("user", user);
+        return "users/edit-user";
+    }
+
+    @PostMapping("/user/profile/edit")
+    public String updateUser(@Valid @ModelAttribute("user") User user, BindingResult result, Model model) {
+        // Tìm người dùng hiện tại theo ID
+        User existingUser = userService.getUserById(user.getId());
+        if (existingUser == null) {
+            throw new UsernameNotFoundException("User not found");
+        }
+
+        // Kiểm tra lỗi từ BindingResult trước khi cập nhật các thông tin khác
+        if (result.hasErrors()) {
+            model.addAttribute("user", existingUser);  // Thêm lại người dùng hiện tại vào model để không mất dữ liệu
+            return "users/edit-user";
+        }
+
+        // Cập nhật thông tin người dùng
+        existingUser.setUsername(user.getUsername());
+        existingUser.setEmail(user.getEmail());
+        existingUser.setPhone(user.getPhone());
+        existingUser.setAddress(user.getAddress());
+
+        // Xử lý mật khẩu
+        if (user.getPassword() == null || user.getPassword().isEmpty()) {
+            // Giữ nguyên mật khẩu hiện tại
+            user.setPassword(existingUser.getPassword());
+        } else {
+            // Mã hóa mật khẩu mới
+            existingUser.setPassword(userService.encodePassword(user.getPassword()));
+        }
+
+        userService.updateUser(existingUser);
+        return "redirect:/user/profile";
+    }
+
+
 
 }
 

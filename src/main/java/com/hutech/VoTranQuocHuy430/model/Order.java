@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -47,7 +48,7 @@ public class Order {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderDetail> orderDetails;
 
-    private double totalAmount;
+    private BigDecimal totalAmount;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;

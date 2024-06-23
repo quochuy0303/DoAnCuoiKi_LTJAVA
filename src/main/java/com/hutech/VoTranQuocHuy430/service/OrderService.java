@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -34,8 +35,10 @@ public class OrderService {
     private final CartService cartService;
     private final Config config;
 
-    public double calculateTotalAmount(List<CartItem> cartItems) {
-        return cartItems.stream().mapToDouble(item -> item.getProduct().getPrice() * item.getQuantity()).sum();
+    public BigDecimal calculateTotalAmount(List<CartItem> cartItems) {
+        return cartItems.stream()
+                .map(item -> item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     public Order getOrderById(Long orderId) {
@@ -88,7 +91,7 @@ public class OrderService {
     }
 
     public ResponseEntity<PaymentResDTO> initiateVnpayPayment(HttpServletRequest req, Order order) throws UnsupportedEncodingException {
-        double totalAmount = order.getTotalAmount() * 100;
+        BigDecimal totalAmount = order.getTotalAmount().multiply(BigDecimal.valueOf(100)); // VNPay yêu cầu số tiền phải nhân với 100
 
         String vnp_TxnRef = Config.getRandomNumber(8);
         String vnp_IpAddr = Config.getIpAddress(req);
@@ -97,7 +100,7 @@ public class OrderService {
         vnp_Params.put("vnp_Version", "2.1.0");
         vnp_Params.put("vnp_Command", "pay");
         vnp_Params.put("vnp_TmnCode", config.getVnp_TmnCode());
-        vnp_Params.put("vnp_Amount", String.valueOf((long) totalAmount));
+        vnp_Params.put("vnp_Amount", String.valueOf(totalAmount.longValue()));
         vnp_Params.put("vnp_CurrCode", "VND");
         vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
         vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang " + order.getId());

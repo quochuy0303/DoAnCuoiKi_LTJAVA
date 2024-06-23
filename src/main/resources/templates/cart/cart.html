@@ -1,53 +1,92 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout}">
+      layout:decorate="~{layout}" lang="en">
 <head>
-    <title th:text="${title} ?: 'Your Cart'">Your Cart</title>
-    <link th:fragment="link-css" rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
-    <link th:fragment="custom-css" rel="stylesheet" th:href="@{/css/style.css}">
+    <title>Your Cart</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        .cart-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .cart, .summary {
+            flex: 1 1 48%;
+            margin: 10px;
+        }
+        .cart .title, .summary h5 {
+            margin-bottom: 20px;
+        }
+        .main img {
+            max-width: 100%;
+        }
+        .main .row {
+            margin-bottom: 15px;
+        }
+        .summary {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        @media (max-width: 768px) {
+            .cart, .summary {
+                flex: 1 1 100%;
+            }
+        }
+    </style>
 </head>
 <body>
 <section layout:fragment="content" class="container mt-3">
-    <h1 style="text-align: center">Your Cart</h1>
-    <div th:if="${cartItems.isEmpty()}" class="alert alert-info">Your cart is empty.</div>
-    <table class="table" th:unless="${cartItems.isEmpty()}">
-        <thead class="table-light">
-        <tr>
-            <th>Product Name</th>
-            <th>Quantity</th>
-            <th>Price</th>
-            <th>Total</th>
-            <th>Action</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="item : ${cartItems}">
-            <td th:text="${item.product.name}"></td>
-            <td th:text="${item.quantity}"></td>
-            <td th:text="${item.product.price}"></td>
-            <td th:text="${item.product.price * item.quantity}"></td>
-            <td>
-                <a th:href="@{/cart/remove/{productId}(productId=${item.product.id})}" class="btn btn-danger btn-sm">Remove</a>
-            </td>
-        </tr>
-        </tbody>
-        <tfoot>
-        <tr>
-            <td colspan="3" style="text-align: right"><strong>Total Amount:</strong></td>
-            <td colspan="2">
-                <span th:text="${totalAmount}"></span>
-            </td>
-        </tr>
-        </tfoot>
-    </table>
-    <div class="mt-3">
-        <a th:href="@{/cart/clear}" class="btn btn-secondary">Clear Cart</a>
-        |
-        <a th:href="@{/order/checkout}" class="btn btn-primary mb-3">Check Out</a>
+    <div class="cart-container">
+        <div class="cart">
+            <div class="title">
+                <h4><b>Shopping Cart</b></h4>
+            </div>
+            <div th:if="${cartItems.isEmpty()}" class="alert alert-info">Your cart is empty.</div>
+            <div th:each="item : ${cartItems}" class="row border-top border-bottom main align-items-center">
+                <div class="col-2">
+                    <img class="img-fluid" th:src="${item.product.image}" alt="Product Image">
+                </div>
+                <div class="col-6">
+                    <div class="row text-muted" th:text="${item.product.category.name}"></div>
+                    <div class="row" th:text="${item.product.name}"></div>
+                </div>
+                <div class="col-2">
+                    <span class="border" th:text="${item.quantity}"></span>
+                </div>
+                <div class="col-2 text-right">
+                    <span th:text="${item.product.price}"></span>
+                    <a style="text-decoration: none" th:href="@{/cart/remove/{productId}(productId=${item.product.id})}" class="close text-danger">&#10005;</a>
+                </div>
+            </div>
+            <div class="back-to-shop">
+                <a th:href="@{/products}">&leftarrow; <span class="btn btn-dark">Back to shop</span></a>
+            </div>
+        </div>
+        <div class="summary">
+            <h5><b>Summary</b></h5>
+            <hr>
+            <div class="row">
+                <div class="col">TOTAL</div>
+                <div class="col text-right"><span th:text="${totalAmount}"></span></div>
+            </div>
+            <form>
+                <p>GIVE CODE</p>
+                <input id="code" class="form-control" placeholder="Enter your code">
+            </form>
+            <div class="row" style="border-top: 1px solid rgba(0,0,0,.1); padding: 2vh 0;">
+                <div class="col">TOTAL PRICE</div>
+                <div class="col text-right"><span th:text="${totalAmount}"></span></div>
+            </div>
+            <form th:action="@{/order/checkout}" method="get">
+                <button type="submit" class="btn btn-primary btn-block">CHECKOUT</button>
+            </form>
+        </div>
     </div>
 </section>
 <script th:src="@{/js/bootstrap.min.js}"></script>
-<script th:src="@{/js/jquery- 3.7.0.min.js}"></script>
+<script th:src="@{/js/jquery-3.7.0.min.js}"></script>
 </body>
 </html>

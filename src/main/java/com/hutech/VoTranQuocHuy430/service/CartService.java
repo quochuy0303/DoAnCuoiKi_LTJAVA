@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 @Service
@@ -15,17 +16,14 @@ public class CartService {
     @Autowired
     private ProductRepository productRepository;
 
-
     private List<CartItem> cartItems = new ArrayList<>();
-    Map<Long, CartItem> cartItemMap = new HashMap<>();
-
 
     public void addToCart(Long productId, int quantity) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("Product not found: " + productId));
 
         CartItem existingCartItem = cartItems.stream()
-                .filter(item -> item.getProduct().getId() == productId)
+                .filter(item -> item.getProduct().getId().equals(productId))
                 .findFirst()
                 .orElse(null);
 
@@ -48,7 +46,9 @@ public class CartService {
         cartItems.clear();
     }
 
-    public double getTotalPrice() {
-        return cartItems.stream().mapToDouble(item -> item.getProduct().getPrice() * item.getQuantity()).sum();
+    public BigDecimal getTotalPrice() {
+        return cartItems.stream()
+                .map(item -> item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

@@ -86,6 +86,9 @@
                                     <p class="text-secondary mb-1">Full Stack Developer</p>
                                     <p class="text-muted font-size-sm">Bay Area, San Francisco, CA</p>
                                     <a class="btn btn-primary" th:href="@{/order/history}">Xem Lịch Sử Mua Hàng</a>
+                                    <form th:action="@{/logout}" method="post">
+                                        <button class="btn btn-primary" type="submit">Logout</button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -127,6 +130,11 @@
                         </div>
                         <hr>
                         <div class="user-info-row">
+                            <div class="user-info-label">Address</div>
+                            <div class="user-info-value" th:text="${user.address}">Address</div>
+                        </div>
+                        <hr>
+                        <div class="user-info-row">
                             <div class="user-info-label">Email</div>
                             <div class="user-info-value" th:text="${user.email}">Email</div>
                         </div>
@@ -138,7 +146,7 @@
                         <hr>
                         <div class="user-info-row">
                             <div class="user-info-value">
-                                <a class="btn btn-info" th:href="@{/user/profile/edit}" target="_blank">Edit</a>
+                                <a class="btn btn-info" th:href="@{/user/profile/edit}">Edit</a>
                             </div>
                         </div>
                     </div>

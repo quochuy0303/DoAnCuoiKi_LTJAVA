@@ -42,25 +42,26 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests((auth) -> auth
+                .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/css/**", "/js/**", "/", "/oauth/**", "/register", "/error",
                                 "/products", "/cart", "/cart/**", "/forgot-password", "/reset-password")
                         .permitAll()
                         .requestMatchers("/products/edit/**", "/products/add", "/products/delete",
                                 "/categories/edit/**", "/categories/add", "/categories/delete",
                                 "/manufacturers/edit/**", "/manufacturers/add", "/manufacturers/delete",
-                                "/brands/edit/**", "/brands/add", "/brands/delete", "/admin/**")
+                                "/brands/edit/**", "/brands/add", "/brands/delete", "/admin/**",
+                                "/blog/new", "/blog/edit/**", "/blog/delete/**")
                         .hasAuthority("ADMIN")
                         .anyRequest().authenticated()
                 )
-                .formLogin((formLogin) -> formLogin
+                .formLogin(formLogin -> formLogin
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
                         .defaultSuccessUrl("/")
                         .failureUrl("/login?error")
                         .permitAll()
                 )
-                .logout((logout) -> logout
+                .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login")
                         .deleteCookies("JSESSIONID")

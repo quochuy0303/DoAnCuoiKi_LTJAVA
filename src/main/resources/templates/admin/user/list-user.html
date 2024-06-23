@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User List</title>
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/sb-admin-2.css}" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h1 class="text-center">User List</h1>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Address</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Actions</th>
+
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user : ${users}">
+            <td th:text="${user.id}"></td>
+            <td th:text="${user.username}"></td>
+            <td th:text="${user.address}"></td>
+            <td th:text="${user.email}"></td>
+            <td th:text="${user.phone}"></td>
+            <td>
+                <form th:action="@{/admin/user/delete}" method="post" style="display:inline;">
+                    <input type="hidden" name="id" th:value="${user.id}" />
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<script th:src="@{/js/jquery- 3.7.0.min.js}"></script>
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

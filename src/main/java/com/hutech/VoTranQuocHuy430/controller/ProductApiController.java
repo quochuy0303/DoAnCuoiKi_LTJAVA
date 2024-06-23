@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/products")
 public class ProductApiController {
@@ -34,8 +33,7 @@ public class ProductApiController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable Long id,
-                                                 @RequestBody Product productDetails) {
+    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product productDetails) {
         Product product = productService.getProductById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found on :: " + id));
         product.setName(productDetails.getName());

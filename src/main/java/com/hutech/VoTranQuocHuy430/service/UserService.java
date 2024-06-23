@@ -4,8 +4,10 @@ import com.hutech.VoTranQuocHuy430.Role;
 import com.hutech.VoTranQuocHuy430.model.User;
 import com.hutech.VoTranQuocHuy430.repository.IRoleRepository;
 import com.hutech.VoTranQuocHuy430.repository.IUserRepository;
+import jakarta.persistence.metamodel.SingularAttribute;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.jpa.domain.AbstractPersistable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -13,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 
@@ -76,5 +79,33 @@ public class UserService implements UserDetailsService {
     public void updatePassword(User user, String password) {
         user.setPassword(passwordEncoder.encode(password));
         userRepository.save(user);
+    }
+
+    public void deleteUser(Long id) {
+        userRepository.deleteById(String.valueOf(id));
+    }
+    public String encodePassword(String password) {
+        return passwordEncoder.encode(password);
+    }
+    public User getUserById(Long id) {
+        return userRepository.findById(String.valueOf(id)).orElse(null);
+    }
+
+    public void updateUser(User user) {
+        User existingUser = userRepository.findById(String.valueOf(user.getId()))
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        // Kiểm tra nếu mật khẩu không null và không rỗng
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+
+        existingUser.setUsername(user.getUsername());
+        existingUser.setEmail(user.getEmail());
+        existingUser.setPhone(user.getPhone());
+        existingUser.setAddress(user.getAddress());
+        existingUser.setRoles(user.getRoles());
+
+        userRepository.save(existingUser);
     }
 }

@@ -8,26 +8,22 @@
 <body>
 <div class="container mt-5">
     <h1>Edit Blog Post</h1>
-    <form th:action="@{/blog/update/{id}(id=${blogPost.id})}" th:object="${blogPost}" method="post">
-        <div class="mb-3">
-            <label for="title" class="form-label">Title</label>
-            <input type="text" class="form-control" id="title" th:field="*{title}">
+    <form th:action="@{/blog/update/{id}(id=${blogPost.id})}" th:object="${blogPost}" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" class="form-control" id="title" name="title" required>
         </div>
-        <div class="mb-3">
-            <label for="content" class="form-label">Content</label>
-            <textarea class="form-control" id="content" th:field="*{content}"></textarea>
+        <div class="form-group">
+            <label for="content">Content</label>
+            <textarea class="form-control" id="content" name="content" rows="5" required></textarea>
         </div>
-        <div class="mb-3">
-            <label for="imageUrl" class="form-label">Image URL</label>
-            <input type="text" class="form-control" id="imageUrl" th:field="*{imageUrl}">
+        <div class="form-group">
+            <label for="category">Category</label>
+            <input type="text" class="form-control" id="category" name="category" required>
         </div>
-        <div class="mb-3">
-            <label for="excerpt" class="form-label">Excerpt</label>
-            <textarea class="form-control" id="excerpt" th:field="*{excerpt}"></textarea>
-        </div>
-        <div class="mb-3">
-            <label for="category" class="form-label">Category</label>
-            <input type="text" class="form-control" id="category" th:field="*{category}">
+        <div class="form-group">
+            <label for="file">Image</label>
+            <input type="file" class="form-control-file" id="file" name="file">
         </div>
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>
